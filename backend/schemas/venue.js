@@ -2,8 +2,7 @@
 
 let mongoose = require('mongoose');
 
-let Venue = mongoose.model(
-    'Venue',
+let VenueSchema = mongoose.Schema(
     {
         id: mongoose.Schema.Types.ObjectId,
         name: String,
@@ -13,6 +12,4 @@ let Venue = mongoose.model(
     }
 );
 
-module.exports = {
-    Venue
-};
+module.exports = VenueSchema;

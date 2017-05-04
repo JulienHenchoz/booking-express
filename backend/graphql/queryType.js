@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 let graphql = require('graphql');
-let { venueType } = require('./types/objectTypes/venue');
+let {venueType} = require('./types/objectTypes/venue');
+let mongoose = require('mongoose');
+let venueSchema = require('../schemas/venue');
 
 let queryType = new graphql.GraphQLObjectType({
     name: 'Query',
@@ -9,15 +11,8 @@ let queryType = new graphql.GraphQLObjectType({
             venues: {
                 type: new graphql.GraphQLList(venueType),
                 resolve: function () {
-                    return [
-                        {
-                            id: 1,
-                            name: 'Le Saltimbanque',
-                            capacity: 40,
-                            address: 'Rue des Grottes',
-                            city: 'Genève'
-                        }
-                    ];
+                    let Venue = mongoose.model('Venue', venueSchema);
+                    return Venue.find();
                 }
             }
         };
