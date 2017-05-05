@@ -31,6 +31,4 @@ let venueType = new graphql.GraphQLObjectType({
     }
 });
 
-module.exports = {
-    venueType: venueType
-};
+module.exports = venueType;

@@ -28,6 +28,4 @@ let venueInputType = new graphql.GraphQLInputObjectType({
     }
 });
 
-module.exports = {
-    venueInputType
-};
+module.exports = venueInputType;

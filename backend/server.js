@@ -3,11 +3,12 @@
 let express = require('express');
 let graphqlHTTP = require('express-graphql');
 let graphql = require('graphql');
-let {queryType} = require('./graphql/queryType');
+let queryType = require('./graphql/queryType');
 let {mutationType} = require('./graphql/mutationType');
+let {databaseUrl} = require('./constants/constants');
 let mongoose = require('mongoose');
 
-mongoose.connect('mongodb://bookingapp:oLUhiMicmZLnDfxezJ2zstHA@ds131511.mlab.com:31511/booking');
+mongoose.connect(databaseUrl);
 
 let schema = new graphql.GraphQLSchema({
     query: queryType,

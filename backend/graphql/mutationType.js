@@ -1,8 +1,8 @@
 /*jshint esversion: 6 */
 
 let graphql = require('graphql');
-let {venueInputType} = require('./types/inputTypes/venue');
-let {venueType} = require('./types/objectTypes/venue');
+let venueInputType = require('./types/inputTypes/venue');
+let venueType = require('./types/objectTypes/venue');
 let venueSchema = require('../schemas/venue');
 let mongoose = require('mongoose');
 
