@@ -12,25 +12,73 @@ let queryType = new graphql.GraphQLObjectType({
     name: 'Query',
     fields: function () {
         return {
-            venues: {
+            /**
+             * Venues
+             */
+            getVenues: {
                 type: new graphql.GraphQLList(venueType),
                 resolve: function () {
                     let Venue = mongoose.model('Venue', venueSchema);
                     return Venue.find();
                 }
             },
-            events: {
+            getVenue: {
+                type: venueType,
+                args: {
+                    id: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    }
+                },
+                resolve: function () {
+                    return {
+                        _id: 1
+                    };
+                }
+            },
+            /**
+             * Events
+             */
+            getEvents: {
                 type: new graphql.GraphQLList(eventType),
                 resolve: function () {
                     let Event = mongoose.model('Event', eventSchema);
                     return Event.find();
                 }
             },
-            bookings: {
+            getEvent: {
+                type: eventType,
+                args: {
+                    id: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    }
+                },
+                resolve: function () {
+                    return {
+                        _id: 1
+                    };
+                }
+            },
+            /**
+             * Bookings
+             */
+            getBookings: {
                 type: new graphql.GraphQLList(bookingType),
                 resolve: function () {
                     let Booking = mongoose.model('Booking', bookingSchema);
                     return Booking.find();
+                }
+            },
+            getBooking: {
+                type: bookingType,
+                args: {
+                    id: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID),
+                    }
+                },
+                resolve: function () {
+                    return {
+                        _id: 1
+                    };
                 }
             }
         };
