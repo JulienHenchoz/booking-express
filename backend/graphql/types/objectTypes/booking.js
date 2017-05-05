@@ -25,9 +25,9 @@ let bookingType = new graphql.GraphQLObjectType({
             nbExpected: {
                 type: graphql.GraphQLInt
             },
-            event: {
+/*            event: {
                 type: eventType
-            },
+            },*/
             subscribeDate: {
                 type: graphql.GraphQLInt
             },
