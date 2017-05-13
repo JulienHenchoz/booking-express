@@ -2,6 +2,8 @@
 
 let mongoose = require('mongoose'), Schema = mongoose.Schema;
 
+let Venue = require('./venue');
+
 let EventSchema = mongoose.Schema(
     {
         id: mongoose.Schema.Types.ObjectId,
