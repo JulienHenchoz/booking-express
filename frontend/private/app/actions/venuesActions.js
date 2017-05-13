@@ -1,5 +1,6 @@
 import * as types from '../constants/actionTypes';
 import * as ajaxRoutes from '../constants/ajaxRoutes';
+import * as query from '../graphql/client.js';
 
 import * as utils from '../utils/utils';
 import l10n from '../l10n/localization';
@@ -192,6 +193,8 @@ export function updateVenue(id, form) {
 export function fetchVenues() {
     return dispatch => {
         dispatch(loadingVenues());
+
+
         fetch(ajaxRoutes.VENUES_GET)
             .then(response => {
                 return response.json();
