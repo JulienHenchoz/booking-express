@@ -2,6 +2,46 @@
 
 let graphql = require('graphql');
 
+let event = new graphql.GraphQLObjectType({
+    name: 'Event',
+    fields: () => ({
+        _id: {
+            type: graphql.GraphQLID
+        },
+        name: {
+            type: graphql.GraphQLString
+        },
+        startDate: {
+            type: graphql.GraphQLFloat
+        },
+        description: {
+            type: graphql.GraphQLString
+        },
+        venue: {
+            type: venue
+        },
+        bookings: {
+            type: new graphql.GraphQLList(booking)
+        },
+        nbExpected: {
+            type: graphql.GraphQLInt,
+            resolve: function(event) {
+                var nbExpected = 0;
+                event.bookings.map(function(booking) {
+                    nbExpected += booking.nbExpected;
+                });
+                return nbExpected;
+            }
+        },
+        nbBookings: {
+            type: graphql.GraphQLInt,
+            resolve: function(event) {
+                return event.bookings.length;
+            }
+        }
+    })
+});
+
 let booking = new graphql.GraphQLObjectType({
     name: 'Booking',
     fields: () => ({
@@ -27,7 +67,7 @@ let booking = new graphql.GraphQLObjectType({
          type: event
          },
         subscribeDate: {
-            type: graphql.GraphQLInt
+            type: graphql.GraphQLFloat
         },
         showedUp: {
             type: graphql.GraphQLBoolean
@@ -35,30 +75,6 @@ let booking = new graphql.GraphQLObjectType({
         subscribedToNewsletter: {
             type: graphql.GraphQLBoolean
         },
-    })
-});
-
-let event = new graphql.GraphQLObjectType({
-    name: 'Event',
-    fields: () => ({
-        _id: {
-            type: graphql.GraphQLID
-        },
-        name: {
-            type: graphql.GraphQLString
-        },
-        startDate: {
-            type: graphql.GraphQLInt
-        },
-        description: {
-            type: graphql.GraphQLString
-        },
-        venue: {
-            type: venue
-        },
-        bookings: {
-            type: new graphql.GraphQLList(booking)
-        }
     })
 });
 

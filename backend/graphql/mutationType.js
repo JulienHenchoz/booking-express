@@ -2,74 +2,118 @@
 
 let graphql = require('graphql');
 
-let venueInputType = require('./types/inputTypes/venue');
-let venueSchema = require('../schemas/venue');
+let inputTypes = require('./types/inputTypes');
+let venueActions = require('./actions/venues');
+let eventActions = require('./actions/events');
+let bookingActions = require('./actions/bookings');
 
-let eventInputType = require('./types/inputTypes/event');
-let eventSchema = require('../schemas/event');
-
-let bookingInputType = require('./types/inputTypes/booking');
-let bookingSchema = require('../schemas/booking');
-
-let mongoose = require('mongoose');
-
-let objecTypes = require('./objectTypes');
+let objectTypes = require('./types/objectTypes');
 
 let mutationType = new graphql.GraphQLObjectType({
-    name: 'Mutation',
-    fields: () => ({
-        createVenue: {
-            type: objecTypes.venue,
-            args: {
-                venue: {
-                    type: new graphql.GraphQLNonNull(venueInputType)
-                }
+        name: 'Mutation',
+        fields: () => ({
+            /**
+             * Venues actions
+             */
+            createVenue: {
+                type: objectTypes.venue,
+                args: {
+                    venue: {
+                        type: new graphql.GraphQLNonNull(inputTypes.venue)
+                    }
+                },
+                resolve: venueActions.create
             },
-            resolve: function (value, args) {
-                let Venue = mongoose.model('Venue', venueSchema);
-                console.log('Inserted venue in DB');
-                let venue = new Venue(args.venue);
-                return venue.save();
-            }
-        },
-        createEvent: {
-            type: objecTypes.event,
-            args: {
-                event: {
-                    type: new graphql.GraphQLNonNull(eventInputType)
-                }
+            editVenue: {
+                type: objectTypes.venue,
+                args: {
+                    venueId: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    },
+                    venue: {
+                        type: new graphql.GraphQLNonNull(inputTypes.venue)
+                    }
+                },
+                resolve: venueActions.edit
             },
-            resolve: function (value, args) {
-                let Event = mongoose.model('Event', eventSchema);
-                console.log('Inserted event in DB');
-                let event = new Event(args.event);
-                return event.save();
-            }
-        },
-        createBooking: {
-            type: objecTypes.booking,
-            args: {
-                booking: {
-                    type: new graphql.GraphQLNonNull(bookingInputType)
-                }
+            removeVenue: {
+                type: objectTypes.venue,
+                args: {
+                    venueId: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    }
+                },
+                resolve: venueActions.remove
             },
-            resolve: function (value, args) {
-                let Booking = mongoose.model('Booking', bookingSchema);
-                let Event = mongoose.model('Event', eventSchema);
-                console.log('Inserted booking in DB');
-
-                let booking = new Booking(args.booking);
-                return booking.save(function(err, savedBooking) {
-                     Event.findOne({_id: args.booking.event}).exec(function(err, eventObj) {
-                         console.log(eventObj);
-                         eventObj.bookings.push(savedBooking._id);
-                         eventObj.save();
-                     });
-                });
+            /**
+             * Events actions
+             */
+            createEvent: {
+                type: objectTypes.event,
+                args: {
+                    event: {
+                        type: new graphql.GraphQLNonNull(inputTypes.event)
+                    }
+                },
+                resolve: eventActions.create
+            },
+            editEvent: {
+                type: objectTypes.event,
+                args: {
+                    eventId: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    },
+                    event: {
+                        type: new graphql.GraphQLNonNull(inputTypes.event)
+                    }
+                },
+                resolve: eventActions.edit
+            },
+            removeEvent: {
+                type: objectTypes.event,
+                args: {
+                    eventId: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    }
+                },
+                resolve: eventActions.remove
+            },
+            /**
+             * Booking actions
+             */
+            createBooking: {
+                type: objectTypes.booking,
+                args: {
+                    booking: {
+                        type: new graphql.GraphQLNonNull(inputTypes.booking)
+                    }
+                },
+                resolve: bookingActions.create
+            },
+            editBooking: {
+                type: objectTypes.booking,
+                args: {
+                    bookingId: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    },
+                    booking: {
+                        type: new graphql.GraphQLNonNull(inputTypes.booking)
+                    }
+                },
+                resolve: bookingActions.edit
+            },
+            removeBooking: {
+                type: objectTypes.booking,
+                args: {
+                    bookingId: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    }
+                },
+                resolve: bookingActions.remove
             }
-        }
+        })
     })
-});
+;
 
 module.exports = {
     mutationType
