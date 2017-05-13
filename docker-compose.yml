@@ -1,6 +1,7 @@
 version: '2'
 services:
-  data:
+  # Backend
+  data_backend:
     image: alpine
     volumes:
       - ./backend:/home/booking/backend
@@ -17,6 +18,23 @@ services:
     ports:
       - 127.0.0.1:4000:4000
     volumes_from:
-      - data
+      - data_backend
     links:
       - mongodb
+
+  # Frontend
+  data_frontend:
+    image: alpine
+    volumes:
+      - ./frontend:/usr/local/apache2/htdocs
+    entrypoint: tail -f /dev/null
+
+  apache:
+    image: httpd:latest
+    volumes_from:
+      - data_frontend
+    links:
+      - backend
+    ports:
+      - "8080:80"
+
