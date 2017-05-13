@@ -6,6 +6,11 @@ services:
       - ./backend:/home/booking/backend
     entrypoint: tail -f /dev/null
 
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+
   backend:
     build:
       context: ./backend
@@ -13,3 +18,5 @@ services:
       - 127.0.0.1:4000:4000
     volumes_from:
       - data
+    links:
+      - mongodb
