@@ -1,0 +1,17 @@
+{
+  "name": "booking-express",
+  "authors": [
+    "Julien Henchoz <jhenchoz@cobweb.ch>"
+  ],
+  "description": "Event booking app",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
