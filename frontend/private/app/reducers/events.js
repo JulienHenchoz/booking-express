@@ -3,7 +3,7 @@ import * as types from '../constants/actionTypes';
 const initialState = {
     items: [],
     pastItems: [],
-    item: {},
+    item: null,
     fetching: false,
     error: null,
     removeModal: false,

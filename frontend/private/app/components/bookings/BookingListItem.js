@@ -13,13 +13,9 @@ import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 
 const propTypes = {
     dispatch: PropTypes.func.isRequired,
-    firstName: PropTypes.string.isRequired,
-    lastName: PropTypes.string.isRequired,
-    nbExpected: PropTypes.number.isRequired,
-    email: PropTypes.string.isRequired,
 };
 
-class BookingListItem extends React.Component {
+export default class BookingListItem extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -56,7 +52,7 @@ class BookingListItem extends React.Component {
                     <li>
                         <Link
                             className="btn-floating blue btn-flat"
-                            to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.eventItem._id, this.props._id)}
+                            to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.event._id, this.props._id)}
                             href="#">
                             <Icon>mode_edit</Icon>
                         </Link>
@@ -71,7 +67,3 @@ class BookingListItem extends React.Component {
 }
 
 BookingListItem.propTypes = propTypes;
-
-export default connect((store) => {
-    return Object.assign({}, store.bookings);
-})(BookingListItem);

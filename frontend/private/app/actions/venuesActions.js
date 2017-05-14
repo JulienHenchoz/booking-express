@@ -1,9 +1,10 @@
 import * as types from '../constants/actionTypes';
 import * as ajaxRoutes from '../constants/ajaxRoutes';
-import * as query from '../graphql/client.js';
+import * as queries from '../graphql/actions/venues.js';
 
 import * as utils from '../utils/utils';
 import l10n from '../l10n/localization';
+
 export function loadingVenues() {
     return {
         type: types.LOADING_VENUES
@@ -116,7 +117,7 @@ export function validationError(errors) {
 export function addVenue(venue) {
     return dispatch => {
         dispatch(savingVenue());
-        query.createVenue(
+        queries.createVenue(
             venue,
             function (response) {
                 dispatch(saveSuccess(response.data.createVenue));
@@ -131,7 +132,7 @@ export function confirmRemoveVenue(id) {
     return dispatch => {
         dispatch(removingVenue());
 
-        query.removeVenue(
+        queries.removeVenue(
             id,
             function (response) {
                 dispatch(removeSuccess(response.data.editVenue));
@@ -149,7 +150,7 @@ export function updateVenue(id, venue) {
 
         delete venue._id;
         delete venue.__typename;
-        query.editVenue(
+        queries.editVenue(
             id,
             venue,
             function (response) {
@@ -165,7 +166,7 @@ export function updateVenue(id, venue) {
 export function fetchVenues() {
     return dispatch => {
         dispatch(loadingVenues());
-        query.getVenues(
+        queries.getVenues(
             function (response) {
                 dispatch(receiveVenues(response.data.getVenues));
             },
@@ -179,7 +180,7 @@ export function fetchVenue(id) {
     return dispatch => {
         dispatch(loadingVenues());
 
-        query.getVenue(
+        queries.getVenue(
             id,
             function (response) {
                 dispatch(receiveVenue(response.data.getVenue));

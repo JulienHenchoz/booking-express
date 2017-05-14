@@ -11,7 +11,7 @@ import FormNavBar from '../menu/FormNavBar';
 
 import moment from 'moment';
 import * as actions from '../../actions/bookingsActions';
-import * as venuesActions from '../../actions/venuesActions';
+import * as eventActions from '../../actions/eventsActions';
 import ConfirmModal from "../utils/ConfirmModal";
 import l10n from "../../l10n/localization";
 
@@ -62,11 +62,12 @@ class BookingForm extends React.Component {
             // If validation is OK, decide whether to update or add the current item
             if (item._id !== undefined) {
                 // If submitted item already has an ID, send an edit action
-                this.props.dispatch(actions.updateBooking(item._id, document.getElementById('booking-form')));
+                this.props.dispatch(actions.updateBooking(item._id, item));
             }
             else {
                 // Else send an Add action
-                this.props.dispatch(actions.addBooking(document.getElementById('booking-form')));
+                item.event = this.props.event._id;
+                this.props.dispatch(actions.addBooking(item));
             }
         }
         else {
@@ -136,8 +137,8 @@ class BookingForm extends React.Component {
     }
 
     getSubtitle() {
-        if (this.props.eventItem) {
-            return this.props.eventItem.name + ' / ' + moment(this.props.eventItem.startDate).format('D MMM YYYY');
+        if (this.props.event) {
+            return this.props.event.name + ' / ' + moment(this.props.event.startDate).format('D MMM YYYY');
         }
     }
 
@@ -206,9 +207,8 @@ class BookingForm extends React.Component {
             this.props.dispatch(actions.fetchBooking(this.props.match.params.bookingId));
         }
 
-        console.log(this.props.eventItem);
-        if (!this.props.eventItem && this.props.match.params.eventId !== undefined) {
-            this.props.dispatch(actions.fetchBookingEvent(this.props.match.params.eventId));
+        if (!this.props.event && this.props.match.params.eventId !== undefined) {
+            this.props.dispatch(eventActions.fetchEvent(this.props.match.params.eventId));
         }
 
     }
@@ -225,13 +225,14 @@ class BookingForm extends React.Component {
      * @param nextProps
      */
     componentWillReceiveProps(nextProps) {
+        let item = Object.assign({}, nextProps.item);
         // Update only if nextProps comes with a valid item, so the form never displays any "null" value
-        if (nextProps.item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(nextProps.item)) {
-            nextProps.item.subscribeDate = moment().format('DD.MM.YYYY HH:mm');
-            nextProps.item.event = this.props.eventItem ? this.props.eventItem._id : 0;
+        if (item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(item)) {
+            item.subscribeDate = moment().format('DD.MM.YYYY HH:mm');
+            item.event = this.props.event ? this.props.event._id : 0;
             this.setState({
                 venues: nextProps.venues,
-                fields: nextProps.item,
+                fields: item,
                 errors: nextProps.errors || this.getEmptyFields()
             });
         }
@@ -254,7 +255,7 @@ class BookingForm extends React.Component {
             <div>
                 {this.props.saveSuccess &&
                     <Redirect to={{
-                        pathname: l10n.formatString(routes.BOOKINGS_LIST, this.props.eventItem._id)
+                        pathname: l10n.formatString(routes.BOOKINGS_LIST, this.props.event._id)
                     }}/>
                 }
                 {this.props.fetching || this.props.fetchingEvent &&
@@ -304,7 +305,7 @@ BookingForm.propTypes = propTypes;
 export default connect((state) => {
     return Object.assign({}, {
         item: state.bookings.item,
-        eventItem: state.bookings.eventItem,
+        event: state.events.item,
         venues: state.venues.items,
         dispatch: state.bookings.dispatch,
         fetching: state.bookings.fetching,

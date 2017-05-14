@@ -1,5 +1,6 @@
 import * as types from '../constants/actionTypes';
 import * as ajaxRoutes from '../constants/ajaxRoutes';
+import * as queries from '../graphql/actions/bookings';
 
 import * as utils from '../utils/utils';
 import l10n from '../l10n/localization';
@@ -157,117 +158,83 @@ export function changeStatusSuccess(bookingId, newStatus) {
 export function changeStatus(bookingId) {
     return dispatch => {
         dispatch(changingStatus(bookingId));
-        // TODO : Dispatch an error if the item has no id
-        fetch(l10n.formatString(ajaxRoutes.CHANGE_BOOKING_STATUS, bookingId), {
-            method: "POST",
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(changeStatusSuccess(bookingId, json.status));
-                }
-                else {
-                    dispatch(changeStatusError(bookingId));
-                }
-            })
-            .catch(function() {
+
+        queries.changeBookingStatus(
+            event,
+            function (response) {
+                dispatch(changeStatusSuccess(bookingId, response.data.changeBookingStatus));
+            },
+            function (error) {
                 dispatch(changeStatusError(bookingId));
             });
-    }
+    };
 }
 
-export function addBooking(form) {
+export function addBooking(booking) {
     return dispatch => {
         dispatch(savingBooking());
-        // TODO : Dispatch an error if the item has no id
-        fetch(ajaxRoutes.BOOKING_ADD, {
-            method: "POST",
-            body: new FormData(form)
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(saveSuccess(json.object));
-                }
-                else {
-                    dispatch(saveError(json.errors));
-                }
-            })
-            .catch(function() {
-                dispatch(saveError([]));
+
+        queries.createBooking(
+            booking,
+            function (response) {
+                dispatch(saveSuccess(response.data.createBooking));
+            },
+            function (error) {
+                console.error(error);
+                dispatch(saveError());
             });
-    }
+    };
 }
 
 export function confirmRemoveBooking(id) {
     return dispatch => {
         dispatch(removingBooking());
-        // TODO : Dispatch an error if the item has no id
-        fetch(l10n.formatString(ajaxRoutes.BOOKING_REMOVE, id), {
-            method: "DELETE",
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(removeSuccess(json.object));
-                }
-                else {
-                    dispatch(removeError(json.errors));
-                }
-            })
-            .catch(function() {
-                dispatch(removeError([]));
+
+        queries.removeBooking(
+            id,
+            function (response) {
+                dispatch(removeSuccess(response.data.removeBooking));
+            },
+            function (error) {
+                dispatch(removeError());
             });
-    }
+    };
 }
 
 
-export function updateBooking(id, form) {
+export function updateBooking(id, booking) {
     return dispatch => {
         dispatch(savingBooking());
-        // TODO : Dispatch an error if the item has no id
-        fetch(l10n.formatString(ajaxRoutes.BOOKING_EDIT, id), {
-            method: "POST",
-            body: new FormData(form)
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(saveSuccess(json.object));
-                }
-                else {
-                    dispatch(saveError(json.errors));
-                }
-            })
-            .catch(function(error) {
+
+        delete booking._id;
+        delete booking.__typename;
+        booking.event = booking.event._id;
+        queries.editBooking(
+            id,
+            booking,
+            function (response) {
+                dispatch(saveSuccess(response.data.editBooking));
+            },
+            function (error) {
                 console.error(error);
-                dispatch(saveError([]));
+                dispatch(saveError());
             });
-    }
+    };
 }
 
-export function fetchBookingEvent(eventId) {
+export function fetchBookingsForEvent(eventId) {
     return dispatch => {
         dispatch(loadingBookingsEvent());
-        fetch(l10n.formatString(ajaxRoutes.EVENT_GET, eventId))
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveBookingsEvent(json));
-            })
-            .catch(function(e) {
+
+        queries.getBookingsForEvent(
+            eventId,
+            function (response) {
+                dispatch(receiveBookingsEvent(response.data.getBookingsForEvent));
+            },
+            function (error) {
                 dispatch(getError(l10n.bookings_event_fetch_error));
             });
-    }
+    };
 }
 
 export function receiveBookingsEvent(item) {
@@ -283,37 +250,32 @@ export function leaveBookingsList() {
     };
 }
 
-export function fetchBookings(eventId) {
+export function fetchBookings() {
     return dispatch => {
         dispatch(loadingBookings());
-        fetch(l10n.formatString(ajaxRoutes.BOOKINGS_GET_BY_EVENT, eventId))
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveBookings(json));
-            })
-            .catch(function(e) {
+
+        queries.getBookings(
+            function (response) {
+                dispatch(receiveBookings(response.data.getBookings));
+            },
+            function (error) {
                 dispatch(getError(l10n.bookings_fetch_error));
             });
-    }
+    };
 }
 
 export function fetchBooking(id) {
     return dispatch => {
         dispatch(loadingBookings());
 
-        fetch(l10n.formatString(ajaxRoutes.BOOKING_GET, id))
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveBooking(json));
-            })
-            .catch(function() {
+        queries.getBooking(
+            id,
+            function (response) {
+                dispatch(receiveBooking(response.data.getBooking));
+            },
+            function (error) {
                 dispatch(getError(l10n.booking_fetch_error));
             });
-
-    }
+    };
 }
 

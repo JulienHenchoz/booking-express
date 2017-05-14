@@ -66,11 +66,11 @@ class EventForm extends React.Component {
             // If validation is OK, decide whether to update or add the current item
             if (item._id !== undefined) {
                 // If submitted item already has an ID, send an edit action
-                this.props.dispatch(actions.updateEvent(item._id, document.getElementById('event-form')));
+                this.props.dispatch(actions.updateEvent(item._id, item));
             }
             else {
                 // Else send an Add action
-                this.props.dispatch(actions.addEvent(document.getElementById('event-form')));
+                this.props.dispatch(actions.addEvent(item));
             }
         }
         else {
@@ -105,7 +105,7 @@ class EventForm extends React.Component {
     onVenueSelectChange(e) {
         let venueId = e.target.value;
         let venue = this.props.venues.filter(function (venue) {
-            return venue._id == venueId;
+            return venue._id === venueId;
         });
         if (venue.length) {
             this.onChange({

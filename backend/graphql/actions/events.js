@@ -15,9 +15,10 @@ function get(root, args) {
     return new Promise((resolve, reject) => {
         models.event.findById(eventId, function (err, event) {
             if (event) {
-                resolve(models.event
-                    .populate(event, 'bookings venue')
-                );
+                models.booking.find({event: eventId}, function(err, bookings) {
+                    event.bookings = bookings;
+                    resolve(models.event.populate(event, 'venue'));
+                });
             }
             else {
                 reject('Event does not exist');

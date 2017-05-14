@@ -46,7 +46,7 @@ let queryType = new graphql.GraphQLObjectType({
             args: {
                 eventId: {
                     type: new graphql.GraphQLNonNull(graphql.GraphQLID)
-                }
+                } 
             },
             resolve: eventActions.get
         },
@@ -55,17 +55,21 @@ let queryType = new graphql.GraphQLObjectType({
          */
         getBookings: {
             type: new graphql.GraphQLList(objectTypes.booking),
+            resolve: bookingActions.list
+        },
+        getBookingsForEvent: {
+            type: new graphql.GraphQLList(objectTypes.booking),
             args: {
                 eventId: {
                     type: new graphql.GraphQLNonNull(graphql.GraphQLID)
                 }
             },
-            resolve: bookingActions.list
+            resolve: bookingActions.listForEvent
         },
         getBooking: {
             type: objectTypes.booking,
             args: {
-                id: {
+                bookingId: {
                     type: new graphql.GraphQLNonNull(graphql.GraphQLID),
                 }
             },

@@ -19,6 +19,16 @@ function get(root, args) {
 
 function list(root, args) {
     let eventId = args.eventId;
+    console.log("Return list of bookings");
+
+    return models.booking
+        .find()
+        .populate('event');
+}
+
+
+function listForEvent(root, args) {
+    let eventId = args.eventId;
     console.log("Return list of bookings for event " + eventId);
 
     return models.booking
@@ -80,6 +90,7 @@ function edit(root, args) {
                     resolve(Event.populate(booking, 'event'));
                 }
                 else {
+                    console.error(err);
                     let error = 'Booking does not exist ' + args.bookingId;
                     console.log(error);
                     reject(new Error(error));
@@ -108,6 +119,7 @@ function remove(root, args) {
 module.exports = {
     get,
     list,
+    listForEvent,
     create,
     edit,
     remove

@@ -1,8 +1,9 @@
 import * as types from '../constants/actionTypes';
 import * as ajaxRoutes from '../constants/ajaxRoutes';
-
 import * as utils from '../utils/utils';
 import l10n from '../l10n/localization';
+import * as queries from '../graphql/actions/events';
+
 export function loadingEvents() {
     return {
         type: types.LOADING_EVENTS
@@ -119,130 +120,113 @@ export function validationError(errors) {
     };
 }
 
-export function addEvent(form) {
+export function addEvent(event) {
     return dispatch => {
         dispatch(savingEvent());
-        // TODO : Dispatch an error if the item has no id
-        fetch(ajaxRoutes.EVENT_ADD, {
-            method: "POST",
-            body: new FormData(form)
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(saveSuccess(json.object));
-                }
-                else {
-                    dispatch(saveError(json.errors));
-                }
-            })
-            .catch(function() {
-                dispatch(saveError([]));
+
+        queries.createEvent(
+            event,
+            function (response) {
+                dispatch(saveSuccess(response.data.createVenue));
+            },
+            function (error) {
+                dispatch(saveError());
             });
-    }
+    };
 }
 
 export function confirmRemoveEvent(id) {
     return dispatch => {
         dispatch(removingEvent());
-        // TODO : Dispatch an error if the item has no id
-        fetch(l10n.formatString(ajaxRoutes.EVENT_REMOVE, id), {
-            method: "DELETE",
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(removeSuccess(json.object));
-                }
-                else {
-                    dispatch(removeError(json.errors));
-                }
-            })
-            .catch(function() {
-                dispatch(removeError([]));
+
+        queries.removeEvent(
+            id,
+            function (response) {
+                dispatch(removeSuccess(response.data.removeEvent));
+            },
+            function (error) {
+                dispatch(removeError());
             });
-    }
+    };
 }
 
 
-export function updateEvent(id, form) {
+export function updateEvent(id, event) {
     return dispatch => {
         dispatch(savingEvent());
-        // TODO : Dispatch an error if the item has no id
-        fetch(l10n.formatString(ajaxRoutes.EVENT_EDIT, id), {
-            method: "POST",
-            body: new FormData(form)
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(saveSuccess(json.object));
-                }
-                else {
-                    dispatch(saveError(json.errors));
-                }
-            })
-            .catch(function(error) {
-                console.error(error);
-                dispatch(saveError([]));
+
+        delete event._id;
+        delete event.__typename;
+        queries.editEvent(
+            id,
+            event,
+            function (response) {
+                dispatch(saveSuccess(response.data.editEvent));
+            },
+            function (error) {
+                dispatch(saveError());
             });
-    }
+    };
 }
 
 
 export function fetchEvents() {
     return dispatch => {
         dispatch(loadingEvents());
-        fetch(ajaxRoutes.EVENTS_GET)
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveEvents(json));
-            })
-            .catch(function() {
+
+        queries.getEvents(
+            function (response) {
+                dispatch(receiveEvents(response.data.getEvents));
+            },
+            function (error) {
                 dispatch(getError(l10n.events_fetch_error));
             });
-    }
+    };
 }
 
 export function fetchPastEvents() {
     return dispatch => {
         dispatch(loadingEvents());
-        fetch(ajaxRoutes.EVENTS_GET_PAST)
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receivePastEvents(json));
-            })
-            .catch(function() {
+
+        queries.getPastEvents(
+            function (response) {
+                dispatch(receivePastEvents(response.data.getPastEvents));
+            },
+            function (error) {
                 dispatch(getError(l10n.events_fetch_error));
             });
-    }
+    };
 }
 
 export function fetchEvent(id) {
     return dispatch => {
         dispatch(loadingEvents());
 
-        fetch(l10n.formatString(ajaxRoutes.EVENT_GET, id))
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveEvent(json));
-            })
-            .catch(function() {
-                dispatch(getError(l10n.event_fetch_error));
+        queries.getEvent(
+            id,
+            function (response) {
+                dispatch(receiveEvent(response.data.getEvent));
+            },
+            function (error) {
+                dispatch(getError(l10n.events_fetch_error));
             });
-
-    }
+    };
 }
+
+export function fetchEventWithBookings(id) {
+    return dispatch => {
+        dispatch(loadingEvents());
+
+        queries.getEventWithBookings(
+            id,
+            function (response) {
+                dispatch(receiveEvent(response.data.getEvent));
+            },
+            function (error) {
+                dispatch(getError(l10n.events_fetch_error));
+            });
+    };
+}
+
+
 

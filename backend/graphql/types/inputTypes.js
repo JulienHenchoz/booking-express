@@ -15,7 +15,7 @@ let booking = new graphql.GraphQLInputObjectType({
             type: new graphql.GraphQLNonNull(graphql.GraphQLInt)
         },
         subscribeDate: {
-            type: graphql.GraphQLInt
+            type: graphql.GraphQLFloat
         },
         email: {
             type: graphql.GraphQLString
@@ -24,7 +24,10 @@ let booking = new graphql.GraphQLInputObjectType({
             type: graphql.GraphQLString
         },
         subscribedToNewsletter: {
-            type: graphql.GraphQLString
+            type: graphql.GraphQLBoolean
+        },
+        showedUp: {
+            type: graphql.GraphQLBoolean
         },
         event: {
             type: graphql.GraphQLID

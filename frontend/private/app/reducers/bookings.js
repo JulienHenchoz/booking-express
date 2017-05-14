@@ -20,13 +20,12 @@ export default function bookings(state = initialState, action) {
          */
         case types.BOOKING_GET_ERROR:
         case types.BOOKINGS_GET_ERROR:
-        case types.BOOKINGS_EVENT_GET_ERROR:
             newState.fetching = false;
             newState.fetchingEvent = false;
             newState.error = action.payload;
             break;
         case types.RECEIVE_BOOKING:
-            newState.item = action.payload;
+            newState.item = Object.assign({}, action.payload);
             newState.fetching = false;
             newState.error = null;
             break;
@@ -93,7 +92,8 @@ export default function bookings(state = initialState, action) {
             newState.formErrors = action.payload;
             break;
         case types.CHANGING_BOOKING_STATUS:
-            newState.items = newState.items.map(function(item) {
+            newState.items = newState.items.map(function(originalItem) {
+                let item = Object.assign({}, originalItem);
                 if (item._id === action.payload.bookingId) {
                     item.changingStatus = true;
                 }
@@ -101,7 +101,8 @@ export default function bookings(state = initialState, action) {
             });
             break;
         case types.CHANGE_BOOKING_STATUS_SUCCESS:
-            newState.items = newState.items.map(function(item) {
+            newState.items = newState.items.map(function(originalItem) {
+                let item = Object.assign({}, originalItem);
                 if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                     item.showedUp = action.payload.newStatus;
@@ -110,7 +111,8 @@ export default function bookings(state = initialState, action) {
             });
             break;
         case types.CHANGE_BOOKING_STATUS_ERROR:
-            newState.items = newState.items.map(function(item) {
+            newState.items = newState.items.map(function(originalItem) {
+                let item = Object.assign({}, originalItem);
                 if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                 }

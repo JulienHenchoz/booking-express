@@ -8084,9 +8084,9 @@ var _ajaxRoutes = __webpack_require__(60);
 
 var ajaxRoutes = _interopRequireWildcard(_ajaxRoutes);
 
-var _client = __webpack_require__(619);
+var _venues = __webpack_require__(636);
 
-var query = _interopRequireWildcard(_client);
+var queries = _interopRequireWildcard(_venues);
 
 var _utils = __webpack_require__(30);
 
@@ -8210,7 +8210,7 @@ function validationError(errors) {
 function addVenue(venue) {
     return function (dispatch) {
         dispatch(savingVenue());
-        query.createVenue(venue, function (response) {
+        queries.createVenue(venue, function (response) {
             dispatch(saveSuccess(response.data.createVenue));
         }, function (error) {
             dispatch(saveError());
@@ -8222,7 +8222,7 @@ function confirmRemoveVenue(id) {
     return function (dispatch) {
         dispatch(removingVenue());
 
-        query.removeVenue(id, function (response) {
+        queries.removeVenue(id, function (response) {
             dispatch(removeSuccess(response.data.editVenue));
         }, function (error) {
             dispatch(removeError());
@@ -8236,7 +8236,7 @@ function updateVenue(id, venue) {
 
         delete venue._id;
         delete venue.__typename;
-        query.editVenue(id, venue, function (response) {
+        queries.editVenue(id, venue, function (response) {
             dispatch(saveSuccess(response.data.editVenue));
         }, function (error) {
             dispatch(saveError());
@@ -8247,7 +8247,7 @@ function updateVenue(id, venue) {
 function fetchVenues() {
     return function (dispatch) {
         dispatch(loadingVenues());
-        query.getVenues(function (response) {
+        queries.getVenues(function (response) {
             dispatch(receiveVenues(response.data.getVenues));
         }, function (error) {
             dispatch(getError(_localization2.default.venues_fetch_error));
@@ -8259,7 +8259,7 @@ function fetchVenue(id) {
     return function (dispatch) {
         dispatch(loadingVenues());
 
-        query.getVenue(id, function (response) {
+        queries.getVenue(id, function (response) {
             dispatch(receiveVenue(response.data.getVenue));
         }, function (error) {
             dispatch(getError(_localization2.default.venues_fetch_error));
@@ -9771,7 +9771,7 @@ exports.changeStatus = changeStatus;
 exports.addBooking = addBooking;
 exports.confirmRemoveBooking = confirmRemoveBooking;
 exports.updateBooking = updateBooking;
-exports.fetchBookingEvent = fetchBookingEvent;
+exports.fetchBookingsForEvent = fetchBookingsForEvent;
 exports.receiveBookingsEvent = receiveBookingsEvent;
 exports.leaveBookingsList = leaveBookingsList;
 exports.fetchBookings = fetchBookings;
@@ -9784,6 +9784,10 @@ var types = _interopRequireWildcard(_actionTypes);
 var _ajaxRoutes = __webpack_require__(60);
 
 var ajaxRoutes = _interopRequireWildcard(_ajaxRoutes);
+
+var _bookings = __webpack_require__(639);
+
+var queries = _interopRequireWildcard(_bookings);
 
 var _utils = __webpack_require__(30);
 
@@ -9950,40 +9954,24 @@ function changeStatusSuccess(bookingId, newStatus) {
 function changeStatus(bookingId) {
     return function (dispatch) {
         dispatch(changingStatus(bookingId));
-        // TODO : Dispatch an error if the item has no id
-        fetch(_localization2.default.formatString(ajaxRoutes.CHANGE_BOOKING_STATUS, bookingId), {
-            method: "POST"
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(changeStatusSuccess(bookingId, json.status));
-            } else {
-                dispatch(changeStatusError(bookingId));
-            }
-        }).catch(function () {
+
+        queries.changeBookingStatus(event, function (response) {
+            dispatch(changeStatusSuccess(bookingId, response.data.changeBookingStatus));
+        }, function (error) {
             dispatch(changeStatusError(bookingId));
         });
     };
 }
 
-function addBooking(form) {
+function addBooking(booking) {
     return function (dispatch) {
         dispatch(savingBooking());
-        // TODO : Dispatch an error if the item has no id
-        fetch(ajaxRoutes.BOOKING_ADD, {
-            method: "POST",
-            body: new FormData(form)
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(saveSuccess(json.object));
-            } else {
-                dispatch(saveError(json.errors));
-            }
-        }).catch(function () {
-            dispatch(saveError([]));
+
+        queries.createBooking(booking, function (response) {
+            dispatch(saveSuccess(response.data.createBooking));
+        }, function (error) {
+            console.error(error);
+            dispatch(saveError());
         });
     };
 }
@@ -9991,53 +9979,38 @@ function addBooking(form) {
 function confirmRemoveBooking(id) {
     return function (dispatch) {
         dispatch(removingBooking());
-        // TODO : Dispatch an error if the item has no id
-        fetch(_localization2.default.formatString(ajaxRoutes.BOOKING_REMOVE, id), {
-            method: "DELETE"
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(removeSuccess(json.object));
-            } else {
-                dispatch(removeError(json.errors));
-            }
-        }).catch(function () {
-            dispatch(removeError([]));
+
+        queries.removeBooking(id, function (response) {
+            dispatch(removeSuccess(response.data.removeBooking));
+        }, function (error) {
+            dispatch(removeError());
         });
     };
 }
 
-function updateBooking(id, form) {
+function updateBooking(id, booking) {
     return function (dispatch) {
         dispatch(savingBooking());
-        // TODO : Dispatch an error if the item has no id
-        fetch(_localization2.default.formatString(ajaxRoutes.BOOKING_EDIT, id), {
-            method: "POST",
-            body: new FormData(form)
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(saveSuccess(json.object));
-            } else {
-                dispatch(saveError(json.errors));
-            }
-        }).catch(function (error) {
+
+        delete booking._id;
+        delete booking.__typename;
+        booking.event = booking.event._id;
+        queries.editBooking(id, booking, function (response) {
+            dispatch(saveSuccess(response.data.editBooking));
+        }, function (error) {
             console.error(error);
-            dispatch(saveError([]));
+            dispatch(saveError());
         });
     };
 }
 
-function fetchBookingEvent(eventId) {
+function fetchBookingsForEvent(eventId) {
     return function (dispatch) {
         dispatch(loadingBookingsEvent());
-        fetch(_localization2.default.formatString(ajaxRoutes.EVENT_GET, eventId)).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receiveBookingsEvent(json));
-        }).catch(function (e) {
+
+        queries.getBookingsForEvent(eventId, function (response) {
+            dispatch(receiveBookingsEvent(response.data.getBookingsForEvent));
+        }, function (error) {
             dispatch(getError(_localization2.default.bookings_event_fetch_error));
         });
     };
@@ -10056,14 +10029,13 @@ function leaveBookingsList() {
     };
 }
 
-function fetchBookings(eventId) {
+function fetchBookings() {
     return function (dispatch) {
         dispatch(loadingBookings());
-        fetch(_localization2.default.formatString(ajaxRoutes.BOOKINGS_GET_BY_EVENT, eventId)).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receiveBookings(json));
-        }).catch(function (e) {
+
+        queries.getBookings(function (response) {
+            dispatch(receiveBookings(response.data.getBookings));
+        }, function (error) {
             dispatch(getError(_localization2.default.bookings_fetch_error));
         });
     };
@@ -10073,11 +10045,9 @@ function fetchBooking(id) {
     return function (dispatch) {
         dispatch(loadingBookings());
 
-        fetch(_localization2.default.formatString(ajaxRoutes.BOOKING_GET, id)).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receiveBooking(json));
-        }).catch(function () {
+        queries.getBooking(id, function (response) {
+            dispatch(receiveBooking(response.data.getBooking));
+        }, function (error) {
             dispatch(getError(_localization2.default.booking_fetch_error));
         });
     };
@@ -10115,6 +10085,7 @@ exports.updateEvent = updateEvent;
 exports.fetchEvents = fetchEvents;
 exports.fetchPastEvents = fetchPastEvents;
 exports.fetchEvent = fetchEvent;
+exports.fetchEventWithBookings = fetchEventWithBookings;
 
 var _actionTypes = __webpack_require__(27);
 
@@ -10131,6 +10102,10 @@ var utils = _interopRequireWildcard(_utils);
 var _localization = __webpack_require__(8);
 
 var _localization2 = _interopRequireDefault(_localization);
+
+var _events = __webpack_require__(637);
+
+var queries = _interopRequireWildcard(_events);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -10250,23 +10225,14 @@ function validationError(errors) {
     };
 }
 
-function addEvent(form) {
+function addEvent(event) {
     return function (dispatch) {
         dispatch(savingEvent());
-        // TODO : Dispatch an error if the item has no id
-        fetch(ajaxRoutes.EVENT_ADD, {
-            method: "POST",
-            body: new FormData(form)
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(saveSuccess(json.object));
-            } else {
-                dispatch(saveError(json.errors));
-            }
-        }).catch(function () {
-            dispatch(saveError([]));
+
+        queries.createEvent(event, function (response) {
+            dispatch(saveSuccess(response.data.createVenue));
+        }, function (error) {
+            dispatch(saveError());
         });
     };
 }
@@ -10274,41 +10240,25 @@ function addEvent(form) {
 function confirmRemoveEvent(id) {
     return function (dispatch) {
         dispatch(removingEvent());
-        // TODO : Dispatch an error if the item has no id
-        fetch(_localization2.default.formatString(ajaxRoutes.EVENT_REMOVE, id), {
-            method: "DELETE"
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(removeSuccess(json.object));
-            } else {
-                dispatch(removeError(json.errors));
-            }
-        }).catch(function () {
-            dispatch(removeError([]));
+
+        queries.removeEvent(id, function (response) {
+            dispatch(removeSuccess(response.data.removeEvent));
+        }, function (error) {
+            dispatch(removeError());
         });
     };
 }
 
-function updateEvent(id, form) {
+function updateEvent(id, event) {
     return function (dispatch) {
         dispatch(savingEvent());
-        // TODO : Dispatch an error if the item has no id
-        fetch(_localization2.default.formatString(ajaxRoutes.EVENT_EDIT, id), {
-            method: "POST",
-            body: new FormData(form)
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(saveSuccess(json.object));
-            } else {
-                dispatch(saveError(json.errors));
-            }
-        }).catch(function (error) {
-            console.error(error);
-            dispatch(saveError([]));
+
+        delete event._id;
+        delete event.__typename;
+        queries.editEvent(id, event, function (response) {
+            dispatch(saveSuccess(response.data.editEvent));
+        }, function (error) {
+            dispatch(saveError());
         });
     };
 }
@@ -10316,11 +10266,10 @@ function updateEvent(id, form) {
 function fetchEvents() {
     return function (dispatch) {
         dispatch(loadingEvents());
-        fetch(ajaxRoutes.EVENTS_GET).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receiveEvents(json));
-        }).catch(function () {
+
+        queries.getEvents(function (response) {
+            dispatch(receiveEvents(response.data.getEvents));
+        }, function (error) {
             dispatch(getError(_localization2.default.events_fetch_error));
         });
     };
@@ -10329,11 +10278,10 @@ function fetchEvents() {
 function fetchPastEvents() {
     return function (dispatch) {
         dispatch(loadingEvents());
-        fetch(ajaxRoutes.EVENTS_GET_PAST).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receivePastEvents(json));
-        }).catch(function () {
+
+        queries.getPastEvents(function (response) {
+            dispatch(receivePastEvents(response.data.getPastEvents));
+        }, function (error) {
             dispatch(getError(_localization2.default.events_fetch_error));
         });
     };
@@ -10343,12 +10291,22 @@ function fetchEvent(id) {
     return function (dispatch) {
         dispatch(loadingEvents());
 
-        fetch(_localization2.default.formatString(ajaxRoutes.EVENT_GET, id)).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receiveEvent(json));
-        }).catch(function () {
-            dispatch(getError(_localization2.default.event_fetch_error));
+        queries.getEvent(id, function (response) {
+            dispatch(receiveEvent(response.data.getEvent));
+        }, function (error) {
+            dispatch(getError(_localization2.default.events_fetch_error));
+        });
+    };
+}
+
+function fetchEventWithBookings(id) {
+    return function (dispatch) {
+        dispatch(loadingEvents());
+
+        queries.getEventWithBookings(id, function (response) {
+            dispatch(receiveEvent(response.data.getEvent));
+        }, function (error) {
+            dispatch(getError(_localization2.default.events_fetch_error));
         });
     };
 }
@@ -34171,11 +34129,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var propTypes = {
-    dispatch: _react.PropTypes.func.isRequired,
-    firstName: _react.PropTypes.string.isRequired,
-    lastName: _react.PropTypes.string.isRequired,
-    nbExpected: _react.PropTypes.number.isRequired,
-    email: _react.PropTypes.string.isRequired
+    dispatch: _react.PropTypes.func.isRequired
 };
 
 var BookingListItem = function (_React$Component) {
@@ -34244,7 +34198,7 @@ var BookingListItem = function (_React$Component) {
                             _reactRouterDom.Link,
                             {
                                 className: "btn-floating blue btn-flat",
-                                to: _localization2.default.formatString(routes.BOOKINGS_EDIT, this.props.eventItem._id, this.props._id),
+                                to: _localization2.default.formatString(routes.BOOKINGS_EDIT, this.props.event._id, this.props._id),
                                 href: "#" },
                             _react2.default.createElement(
                                 _reactMaterialize.Icon,
@@ -34261,11 +34215,10 @@ var BookingListItem = function (_React$Component) {
     return BookingListItem;
 }(_react2.default.Component);
 
-BookingListItem.propTypes = propTypes;
+exports.default = BookingListItem;
 
-exports.default = (0, _reactRedux.connect)(function (store) {
-    return Object.assign({}, store.bookings);
-})(BookingListItem);
+
+BookingListItem.propTypes = propTypes;
 
 /***/ }),
 /* 291 */
@@ -34322,9 +34275,9 @@ var _bookingsActions = __webpack_require__(57);
 
 var actions = _interopRequireWildcard(_bookingsActions);
 
-var _venuesActions = __webpack_require__(38);
+var _eventsActions = __webpack_require__(58);
 
-var venuesActions = _interopRequireWildcard(_venuesActions);
+var eventActions = _interopRequireWildcard(_eventsActions);
 
 var _ConfirmModal = __webpack_require__(73);
 
@@ -34396,10 +34349,11 @@ var BookingForm = function (_React$Component) {
                 // If validation is OK, decide whether to update or add the current item
                 if (item._id !== undefined) {
                     // If submitted item already has an ID, send an edit action
-                    this.props.dispatch(actions.updateBooking(item._id, document.getElementById('booking-form')));
+                    this.props.dispatch(actions.updateBooking(item._id, item));
                 } else {
                     // Else send an Add action
-                    this.props.dispatch(actions.addBooking(document.getElementById('booking-form')));
+                    item.event = this.props.event._id;
+                    this.props.dispatch(actions.addBooking(item));
                 }
             } else {
                 // If there were validation errors, copy them to the state so they can be displayed in the form
@@ -34483,8 +34437,8 @@ var BookingForm = function (_React$Component) {
     }, {
         key: "getSubtitle",
         value: function getSubtitle() {
-            if (this.props.eventItem) {
-                return this.props.eventItem.name + ' / ' + (0, _moment2.default)(this.props.eventItem.startDate).format('D MMM YYYY');
+            if (this.props.event) {
+                return this.props.event.name + ' / ' + (0, _moment2.default)(this.props.event.startDate).format('D MMM YYYY');
             }
         }
 
@@ -34571,9 +34525,8 @@ var BookingForm = function (_React$Component) {
                 this.props.dispatch(actions.fetchBooking(this.props.match.params.bookingId));
             }
 
-            console.log(this.props.eventItem);
-            if (!this.props.eventItem && this.props.match.params.eventId !== undefined) {
-                this.props.dispatch(actions.fetchBookingEvent(this.props.match.params.eventId));
+            if (!this.props.event && this.props.match.params.eventId !== undefined) {
+                this.props.dispatch(eventActions.fetchEvent(this.props.match.params.eventId));
             }
         }
 
@@ -34595,13 +34548,14 @@ var BookingForm = function (_React$Component) {
     }, {
         key: "componentWillReceiveProps",
         value: function componentWillReceiveProps(nextProps) {
+            var item = Object.assign({}, nextProps.item);
             // Update only if nextProps comes with a valid item, so the form never displays any "null" value
-            if (nextProps.item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(nextProps.item)) {
-                nextProps.item.subscribeDate = (0, _moment2.default)().format('DD.MM.YYYY HH:mm');
-                nextProps.item.event = this.props.eventItem ? this.props.eventItem._id : 0;
+            if (item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(item)) {
+                item.subscribeDate = (0, _moment2.default)().format('DD.MM.YYYY HH:mm');
+                item.event = this.props.event ? this.props.event._id : 0;
                 this.setState({
                     venues: nextProps.venues,
-                    fields: nextProps.item,
+                    fields: item,
                     errors: nextProps.errors || this.getEmptyFields()
                 });
             }
@@ -34628,7 +34582,7 @@ var BookingForm = function (_React$Component) {
                 "div",
                 null,
                 this.props.saveSuccess && _react2.default.createElement(_reactRouterDom.Redirect, { to: {
-                        pathname: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props.eventItem._id)
+                        pathname: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props.event._id)
                     } }),
                 this.props.fetching || this.props.fetchingEvent && _react2.default.createElement(_Loader2.default, null),
                 _react2.default.createElement(_ConfirmModal2.default, { title: _localization2.default.delete_booking_title,
@@ -34678,7 +34632,7 @@ BookingForm.propTypes = propTypes;
 exports.default = (0, _reactRedux.connect)(function (state) {
     return Object.assign({}, {
         item: state.bookings.item,
-        eventItem: state.bookings.eventItem,
+        event: state.events.item,
         venues: state.venues.items,
         dispatch: state.bookings.dispatch,
         fetching: state.bookings.fetching,
@@ -34738,9 +34692,13 @@ var _HighlightBox = __webpack_require__(110);
 
 var _HighlightBox2 = _interopRequireDefault(_HighlightBox);
 
+var _eventsActions = __webpack_require__(58);
+
+var actions = _interopRequireWildcard(_eventsActions);
+
 var _bookingsActions = __webpack_require__(57);
 
-var actions = _interopRequireWildcard(_bookingsActions);
+var bookingActions = _interopRequireWildcard(_bookingsActions);
 
 var _BookingListItem = __webpack_require__(290);
 
@@ -34762,7 +34720,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var propTypes = {
     dispatch: _react.PropTypes.func.isRequired,
-    items: _react.PropTypes.array,
     fetching: _react.PropTypes.bool,
     error: _react.PropTypes.string,
     active: _react.PropTypes.bool
@@ -34787,14 +34744,13 @@ var BookingsList = function (_React$Component) {
         value: function componentWillMount() {
             var eventId = this.props.match.params.eventId !== undefined ? this.props.match.params.eventId : null;
             if (eventId) {
-                this.props.dispatch(actions.fetchBookingEvent(eventId));
-                this.props.dispatch(actions.fetchBookings(eventId));
+                this.props.dispatch(actions.fetchEventWithBookings(eventId));
             }
         }
     }, {
         key: "componentWillUnmount",
         value: function componentWillUnmount() {
-            this.props.dispatch(actions.leaveBookingsList());
+            this.props.dispatch(bookingActions.leaveBookingsList());
         }
 
         /**
@@ -34806,7 +34762,7 @@ var BookingsList = function (_React$Component) {
         key: "onReload",
         value: function onReload(e) {
             e.preventDefault();
-            this.fetchBookings(this.props.currentEvent);
+            this.props.dispatch(actions.fetchEventWithBookings(this.props.event._id));
         }
 
         /**
@@ -34816,7 +34772,7 @@ var BookingsList = function (_React$Component) {
     }, {
         key: "fetchBookings",
         value: function fetchBookings() {
-            this.props.dispatch(actions.fetchBookings(this.props.currentEvent));
+            this.props.dispatch(actions.fetchEventWithBookings(this.props.currentEvent));
         }
 
         /**
@@ -34840,14 +34796,14 @@ var BookingsList = function (_React$Component) {
     }, {
         key: "isListEmpty",
         value: function isListEmpty() {
-            return this.props.items === undefined || this.props.items === null || this.props.items.length === 0;
+            return !this.props.event || this.props.event.bookings === undefined || this.props.event.bookings === null || this.props.event.bookings.length === 0;
         }
     }, {
         key: "getOccupancyClass",
         value: function getOccupancyClass() {
-            if (this.props.eventItem.occupancyRate === 2) {
+            if (this.props.event.occupancyRate === 2) {
                 return 'red-text';
-            } else if (this.props.eventItem.occupancyRate === 1) {
+            } else if (this.props.event.occupancyRate === 1) {
                 return 'orange-text';
             } else {
                 return 'green-text';
@@ -34856,9 +34812,9 @@ var BookingsList = function (_React$Component) {
     }, {
         key: "getProgressBarClass",
         value: function getProgressBarClass() {
-            if (this.props.eventItem.occupancyRate === 2) {
+            if (this.props.event.occupancyRate === 2) {
                 return 'green';
-            } else if (this.props.eventItem.occupancyRate === 1) {
+            } else if (this.props.event.occupancyRate === 1) {
                 return 'orange';
             } else {
                 return 'red';
@@ -34874,9 +34830,14 @@ var BookingsList = function (_React$Component) {
         key: "render",
         value: function render() {
             // Display the list
-            var itemList = this.props.items.map(function (booking) {
-                return _react2.default.createElement(_BookingListItem2.default, _extends({ editLink: true, key: booking._id }, booking));
-            });
+            var itemList = '';
+            var self = this;
+            if (!this.isListEmpty()) {
+                itemList = this.props.event.bookings.map(function (booking) {
+                    return _react2.default.createElement(_BookingListItem2.default, _extends({ dispatch: self.props.dispatch, event: self.props.event, editLink: true, key: booking._id }, booking));
+                });
+            }
+
             var body = '';
             if (itemList.length) {
                 body = _react2.default.createElement(
@@ -34896,37 +34857,37 @@ var BookingsList = function (_React$Component) {
                 _react2.default.createElement(_FixedNavBar2.default, {
                     title: _localization2.default.bookings_title,
                     showAddBtn: true,
-                    addRoute: _localization2.default.formatString(routes.BOOKINGS_ADD, this.props.eventItem ? this.props.eventItem._id : '') }),
-                !this.props.fetchingEvent && this.props.eventItem && _react2.default.createElement(
+                    addRoute: _localization2.default.formatString(routes.BOOKINGS_ADD, this.props.event ? this.props.event._id : '') }),
+                !this.props.fetchingEvent && this.props.event && _react2.default.createElement(
                     "div",
                     null,
                     _react2.default.createElement(
                         "h1",
                         null,
-                        this.props.eventItem.name,
+                        this.props.event.name,
                         _react2.default.createElement(
                             "small",
                             { className: "right" },
-                            (0, _moment2.default)(this.props.eventItem.startDate).format('D MMM YYYY')
+                            (0, _moment2.default)(this.props.event.startDate).format('D MMM YYYY')
                         )
                     ),
                     _react2.default.createElement(
                         "div",
                         { className: "progress grey lighten-3" },
                         _react2.default.createElement("div", { className: "determinate " + this.getProgressBarClass(),
-                            style: { width: this.props.fetching ? 0 : this.props.eventItem.occupancyPercentage + "%" } })
+                            style: { width: this.props.fetching ? 0 : this.props.event.occupancyPercentage + "%" } })
                     ),
                     _react2.default.createElement(
                         _reactMaterialize.Row,
                         null,
-                        _react2.default.createElement(_HighlightBox2.default, { value: this.props.eventItem.bookingsCount, label: _localization2.default.highlight_bookings }),
-                        _react2.default.createElement(_HighlightBox2.default, { value: this.props.eventItem.peopleCount, label: _localization2.default.highlight_people }),
-                        _react2.default.createElement(_HighlightBox2.default, { colorClassName: this.getOccupancyClass(), value: this.props.eventItem.seatsLeft, label: _localization2.default.hightlight_seats_left })
+                        _react2.default.createElement(_HighlightBox2.default, { value: this.props.event.bookingsCount, label: _localization2.default.highlight_bookings }),
+                        _react2.default.createElement(_HighlightBox2.default, { value: this.props.event.peopleCount, label: _localization2.default.highlight_people }),
+                        _react2.default.createElement(_HighlightBox2.default, { colorClassName: this.getOccupancyClass(), value: this.props.event.seatsLeft, label: _localization2.default.hightlight_seats_left })
                     )
                 ),
                 this.props.fetching && _react2.default.createElement(_Loader2.default, null),
                 this.props.error && !this.props.fetching && _react2.default.createElement(_Reload2.default, { onClick: this.onReload.bind(this), error: this.props.error }),
-                !this.props.fetching && this.props.items.length === 0 && !this.props.error && _react2.default.createElement(_Reload2.default, { onClick: this.onReload.bind(this), error: _localization2.default.no_bookings }),
+                !this.props.fetching && this.props.event && this.isListEmpty() && !this.props.error && _react2.default.createElement(_Reload2.default, { onClick: this.onReload.bind(this), error: _localization2.default.no_bookings }),
                 !this.props.fetching && !this.props.error && body
             );
         }
@@ -34938,7 +34899,12 @@ var BookingsList = function (_React$Component) {
 BookingsList.propTypes = propTypes;
 
 exports.default = (0, _reactRedux.connect)(function (state) {
-    return Object.assign({}, state.bookings);
+    return Object.assign({}, {
+        event: state.events.item,
+        fetching: state.events.fetching,
+        error: state.events.error,
+        active: state.events.active
+    });
 })(BookingsList);
 
 /***/ }),
@@ -35454,10 +35420,10 @@ var EventForm = function (_React$Component) {
                 // If validation is OK, decide whether to update or add the current item
                 if (item._id !== undefined) {
                     // If submitted item already has an ID, send an edit action
-                    this.props.dispatch(actions.updateEvent(item._id, document.getElementById('event-form')));
+                    this.props.dispatch(actions.updateEvent(item._id, item));
                 } else {
                     // Else send an Add action
-                    this.props.dispatch(actions.addEvent(document.getElementById('event-form')));
+                    this.props.dispatch(actions.addEvent(item));
                 }
             } else {
                 // If there were validation errors, copy them to the state so they can be displayed in the form
@@ -35498,7 +35464,7 @@ var EventForm = function (_React$Component) {
         value: function onVenueSelectChange(e) {
             var venueId = e.target.value;
             var venue = this.props.venues.filter(function (venue) {
-                return venue._id == venueId;
+                return venue._id === venueId;
             });
             if (venue.length) {
                 this.onChange({
@@ -37185,13 +37151,12 @@ function bookings() {
          */
         case types.BOOKING_GET_ERROR:
         case types.BOOKINGS_GET_ERROR:
-        case types.BOOKINGS_EVENT_GET_ERROR:
             newState.fetching = false;
             newState.fetchingEvent = false;
             newState.error = action.payload;
             break;
         case types.RECEIVE_BOOKING:
-            newState.item = action.payload;
+            newState.item = Object.assign({}, action.payload);
             newState.fetching = false;
             newState.error = null;
             break;
@@ -37258,7 +37223,8 @@ function bookings() {
             newState.formErrors = action.payload;
             break;
         case types.CHANGING_BOOKING_STATUS:
-            newState.items = newState.items.map(function (item) {
+            newState.items = newState.items.map(function (originalItem) {
+                var item = Object.assign({}, originalItem);
                 if (item._id === action.payload.bookingId) {
                     item.changingStatus = true;
                 }
@@ -37266,7 +37232,8 @@ function bookings() {
             });
             break;
         case types.CHANGE_BOOKING_STATUS_SUCCESS:
-            newState.items = newState.items.map(function (item) {
+            newState.items = newState.items.map(function (originalItem) {
+                var item = Object.assign({}, originalItem);
                 if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                     item.showedUp = action.payload.newStatus;
@@ -37275,7 +37242,8 @@ function bookings() {
             });
             break;
         case types.CHANGE_BOOKING_STATUS_ERROR:
-            newState.items = newState.items.map(function (item) {
+            newState.items = newState.items.map(function (originalItem) {
+                var item = Object.assign({}, originalItem);
                 if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                 }
@@ -37377,7 +37345,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var initialState = {
     items: [],
     pastItems: [],
-    item: {},
+    item: null,
     fetching: false,
     error: null,
     removeModal: false,
@@ -67991,11 +67959,6 @@ exports.version = "1.2.2"
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getVenues = getVenues;
-exports.getVenue = getVenue;
-exports.createVenue = createVenue;
-exports.editVenue = editVenue;
-exports.removeVenue = removeVenue;
 
 var _apolloClient = __webpack_require__(608);
 
@@ -68013,122 +67976,11 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var client = new _apolloClient2.default({
+exports.default = new _apolloClient2.default({
     networkInterface: (0, _apolloClient.createNetworkInterface)({
         uri: 'http://127.0.0.1:4000/'
     })
 });
-
-/**
- * Returns the list of venues
- * @param success
- * @param error
- */
-function getVenues(success, error) {
-    client.query({
-        fetchPolicy: 'network-only',
-        query: venueQueries.getVenues
-    }).then(success).catch(error);
-}
-
-/**
- * Returns the list of venues
- * @param venueId
- * @param success
- * @param error
- */
-function getVenue(venueId, success, error) {
-    client.query({
-        variables: { venueId: venueId },
-        query: venueQueries.getVenue
-    }).then(success).catch(error);
-}
-
-/**
- *
- * Creates a venue
- * @param venue
- * @param success
- * @param error
- */
-function createVenue(venue, success, error) {
-    console.log(venue);
-    client.mutate({
-        variables: { venue: venue },
-        mutation: venueQueries.createVenue,
-        update: function update(store, _ref) {
-            var createVenue = _ref.data.createVenue;
-
-            console.log(createVenue);
-            /*
-            // Read the data from our cache for this query.
-            let data = store.readQuery({
-                query: venueQueries.getVenue,
-                variables: {venueId: venueId},
-            });
-             data.getVenue = Object.assign({}, editVenue);
-            // Write our data back to the cache.
-            store.writeQuery({
-                query: venueQueries.getVenue, data,
-                variables: {venueId: venueId},
-            });*/
-        },
-        refetchQueries: [{
-            query: venueQueries.getVenues
-        }]
-    }).then(success).catch(error);
-}
-
-/**
- *
- * Edits a venue
- * @param venueId
- * @param venue
- * @param success
- * @param error
- */
-function editVenue(venueId, venue, success, error) {
-    client.mutate({
-        variables: { venueId: venueId, venue: venue },
-        mutation: venueQueries.editVenue,
-        update: function update(store, _ref2) {
-            var editVenue = _ref2.data.editVenue;
-
-            // Read the data from our cache for this query.
-            var data = store.readQuery({
-                query: venueQueries.getVenue,
-                variables: { venueId: venueId }
-            });
-
-            data.getVenue = Object.assign({}, editVenue);
-            // Write our data back to the cache.
-            store.writeQuery({
-                query: venueQueries.getVenue, data: data,
-                variables: { venueId: venueId }
-            });
-        },
-        refetchQueries: [{
-            query: venueQueries.getVenues
-        }]
-    }).then(success).catch(error);
-}
-
-/**
- *
- * Edits a venue
- * @param venueId
- * @param success
- * @param error
- */
-function removeVenue(venueId, success, error) {
-    client.mutate({
-        variables: { venueId: venueId },
-        mutation: venueQueries.removeVenue,
-        refetchQueries: [{
-            query: venueQueries.getVenues
-        }]
-    }).then(success).catch(error);
-}
 
 /***/ }),
 /* 620 */
@@ -70856,6 +70708,584 @@ var createVenue = exports.createVenue = (0, _graphqlTag2.default)(_templateObjec
 var editVenue = exports.editVenue = (0, _graphqlTag2.default)(_templateObject5, fragments.basicInfo);
 
 var removeVenue = exports.removeVenue = (0, _graphqlTag2.default)(_templateObject6, fragments.basicInfo);
+
+/***/ }),
+/* 636 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getVenues = getVenues;
+exports.getVenue = getVenue;
+exports.createVenue = createVenue;
+exports.editVenue = editVenue;
+exports.removeVenue = removeVenue;
+
+var _apolloClient = __webpack_require__(608);
+
+var _apolloClient2 = _interopRequireDefault(_apolloClient);
+
+var _graphqlTag = __webpack_require__(625);
+
+var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+var _venues = __webpack_require__(635);
+
+var venueQueries = _interopRequireWildcard(_venues);
+
+var _client = __webpack_require__(619);
+
+var _client2 = _interopRequireDefault(_client);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Returns the list of venues
+ * @param success
+ * @param error
+ */
+function getVenues(success, error) {
+    _client2.default.query({
+        // Always fetch the list from server, never use cache
+        fetchPolicy: 'network-only',
+        query: venueQueries.getVenues
+    }).then(success).catch(error);
+}
+
+/**
+ * Returns the list of venues
+ * @param venueId
+ * @param success
+ * @param error
+ */
+function getVenue(venueId, success, error) {
+    _client2.default.query({
+        variables: { venueId: venueId },
+        query: venueQueries.getVenue
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Creates a venue
+ * @param venue
+ * @param success
+ * @param error
+ */
+function createVenue(venue, success, error) {
+    _client2.default.mutate({
+        variables: { venue: venue },
+        mutation: venueQueries.createVenue,
+        update: function update(store, _ref) {
+            var createVenue = _ref.data.createVenue;
+
+            console.log(createVenue);
+            /*
+             // Read the data from our cache for this query.
+             let data = store.readQuery({
+             query: venueQueries.getVenue,
+             variables: {venueId: venueId},
+             });
+              data.getVenue = Object.assign({}, editVenue);
+             // Write our data back to the cache.
+             store.writeQuery({
+             query: venueQueries.getVenue, data,
+             variables: {venueId: venueId},
+             });*/
+        },
+        refetchQueries: [{
+            query: venueQueries.getVenues
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a venue
+ * @param venueId
+ * @param venue
+ * @param success
+ * @param error
+ */
+function editVenue(venueId, venue, success, error) {
+    _client2.default.mutate({
+        variables: { venueId: venueId, venue: venue },
+        mutation: venueQueries.editVenue,
+        update: function update(store, _ref2) {
+            var editVenue = _ref2.data.editVenue;
+
+            // Read the data from our cache for this query.
+            var data = store.readQuery({
+                query: venueQueries.getVenue,
+                variables: { venueId: venueId }
+            });
+
+            data.getVenue = Object.assign({}, editVenue);
+            // Write our data back to the cache.
+            store.writeQuery({
+                query: venueQueries.getVenue, data: data,
+                variables: { venueId: venueId }
+            });
+        },
+        refetchQueries: [{
+            query: venueQueries.getVenues
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a venue
+ * @param venueId
+ * @param success
+ * @param error
+ */
+function removeVenue(venueId, success, error) {
+    _client2.default.mutate({
+        variables: { venueId: venueId },
+        mutation: venueQueries.removeVenue,
+        refetchQueries: [{
+            query: venueQueries.getVenues
+        }]
+    }).then(success).catch(error);
+}
+
+/***/ }),
+/* 637 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getEvents = getEvents;
+exports.getPastEvents = getPastEvents;
+exports.getEvent = getEvent;
+exports.getEventWithBookings = getEventWithBookings;
+exports.createEvent = createEvent;
+exports.editEvent = editEvent;
+exports.removeEvent = removeEvent;
+
+var _apolloClient = __webpack_require__(608);
+
+var _apolloClient2 = _interopRequireDefault(_apolloClient);
+
+var _graphqlTag = __webpack_require__(625);
+
+var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+var _events = __webpack_require__(638);
+
+var eventQueries = _interopRequireWildcard(_events);
+
+var _client = __webpack_require__(619);
+
+var _client2 = _interopRequireDefault(_client);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Returns the list of events
+ * @param success
+ * @param error
+ */
+function getEvents(success, error) {
+    _client2.default.query({
+        // Always fetch the list from server, never use cache
+        fetchPolicy: 'network-only',
+        query: eventQueries.getEvents
+    }).then(success).catch(error);
+}
+
+/**
+ * Returns the list of events
+ * @param success
+ * @param error
+ */
+function getPastEvents(success, error) {
+    _client2.default.query({
+        // Always fetch the list from server, never use cache
+        fetchPolicy: 'network-only',
+        query: eventQueries.getPastEvents
+    }).then(success).catch(error);
+}
+
+/**
+ * Returns the list of events
+ * @param eventId
+ * @param success
+ * @param error
+ */
+function getEvent(eventId, success, error) {
+    _client2.default.query({
+        variables: { eventId: eventId },
+        query: eventQueries.getEvent
+    }).then(success).catch(error);
+}
+
+/**
+ * Returns the list of events
+ * @param eventId
+ * @param success
+ * @param error
+ */
+function getEventWithBookings(eventId, success, error) {
+    _client2.default.query({
+        fetchPolicy: 'network-only',
+        variables: { eventId: eventId },
+        query: eventQueries.getEventWithBookings
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Creates a event
+ * @param event
+ * @param success
+ * @param error
+ */
+function createEvent(event, success, error) {
+    _client2.default.mutate({
+        variables: { event: event },
+        mutation: eventQueries.createEvent,
+        refetchQueries: [{
+            query: eventQueries.getEvents
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a event
+ * @param eventId
+ * @param event
+ * @param success
+ * @param error
+ */
+function editEvent(eventId, event, success, error) {
+    _client2.default.mutate({
+        variables: { eventId: eventId, event: event },
+        mutation: eventQueries.editEvent,
+        update: function update(store, _ref) {
+            var editEvent = _ref.data.editEvent;
+
+            // Read the data from our cache for this query.
+            var data = store.readQuery({
+                query: eventQueries.getEvent,
+                variables: { eventId: eventId }
+            });
+
+            data.getEvent = Object.assign({}, editEvent);
+            // Write our data back to the cache.
+            store.writeQuery({
+                query: eventQueries.getEvent, data: data,
+                variables: { eventId: eventId }
+            });
+        },
+        refetchQueries: [{
+            query: eventQueries.getEvents
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a event
+ * @param eventId
+ * @param success
+ * @param error
+ */
+function removeEvent(eventId, success, error) {
+    _client2.default.mutate({
+        variables: { eventId: eventId },
+        mutation: eventQueries.removeEvent,
+        refetchQueries: [{
+            query: eventQueries.getEvents
+        }]
+    }).then(success).catch(error);
+}
+
+/***/ }),
+/* 638 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.removeEvent = exports.editEvent = exports.createEvent = exports.getPastEvents = exports.getEvents = exports.getEventWithBookings = exports.getEvent = undefined;
+
+var _templateObject = _taggedTemplateLiteral(['\n    fragment BasicInfo on Event {\n        _id\n        name\n        startDate\n        nbExpected\n        nbBookings\n        venue {\n            _id\n            name\n        }\n    }\n  '], ['\n    fragment BasicInfo on Event {\n        _id\n        name\n        startDate\n        nbExpected\n        nbBookings\n        venue {\n            _id\n            name\n        }\n    }\n  ']),
+    _templateObject2 = _taggedTemplateLiteral(['\n    query getEvent($eventId: ID!) {\n      getEvent(eventId: $eventId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getEvent($eventId: ID!) {\n      getEvent(eventId: $eventId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject3 = _taggedTemplateLiteral(['\n    query getEvent($eventId: ID!) {\n      getEvent(eventId: $eventId) {\n        ...BasicInfo\n        bookings {\n            _id\n            firstName\n            lastName\n            email\n            nbExpected\n            showedUp\n            subscribedToNewsletter\n            subscribeDate\n        }\n      }\n    }\n    ', '\n'], ['\n    query getEvent($eventId: ID!) {\n      getEvent(eventId: $eventId) {\n        ...BasicInfo\n        bookings {\n            _id\n            firstName\n            lastName\n            email\n            nbExpected\n            showedUp\n            subscribedToNewsletter\n            subscribeDate\n        }\n      }\n    }\n    ', '\n']),
+    _templateObject4 = _taggedTemplateLiteral(['\n    query getEvents {\n      getEvents {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getEvents {\n      getEvents {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject5 = _taggedTemplateLiteral(['\n    query getPastEvents {\n      getPastEvents {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getPastEvents {\n      getPastEvents {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject6 = _taggedTemplateLiteral(['\n    mutation createEvent($event: EventInput!) {\n      createEvent(event: $event) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation createEvent($event: EventInput!) {\n      createEvent(event: $event) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject7 = _taggedTemplateLiteral(['\n    mutation editEvent($eventId: ID!, $event: EventInput!) {\n      editEvent(eventId: $eventId, event: $event) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation editEvent($eventId: ID!, $event: EventInput!) {\n      editEvent(eventId: $eventId, event: $event) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject8 = _taggedTemplateLiteral(['\n    mutation removeEvent($eventId: ID!) {\n      removeEvent(eventId: $eventId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation removeEvent($eventId: ID!) {\n      removeEvent(eventId: $eventId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']);
+
+var _graphqlTag = __webpack_require__(625);
+
+var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var fragments = {
+  basicInfo: (0, _graphqlTag2.default)(_templateObject)
+};
+
+var getEvent = exports.getEvent = (0, _graphqlTag2.default)(_templateObject2, fragments.basicInfo);
+
+var getEventWithBookings = exports.getEventWithBookings = (0, _graphqlTag2.default)(_templateObject3, fragments.basicInfo);
+
+var getEvents = exports.getEvents = (0, _graphqlTag2.default)(_templateObject4, fragments.basicInfo);
+
+var getPastEvents = exports.getPastEvents = (0, _graphqlTag2.default)(_templateObject5, fragments.basicInfo);
+
+var createEvent = exports.createEvent = (0, _graphqlTag2.default)(_templateObject6, fragments.basicInfo);
+
+var editEvent = exports.editEvent = (0, _graphqlTag2.default)(_templateObject7, fragments.basicInfo);
+
+var removeEvent = exports.removeEvent = (0, _graphqlTag2.default)(_templateObject8, fragments.basicInfo);
+
+/***/ }),
+/* 639 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getBookings = getBookings;
+exports.changeBookingStatus = changeBookingStatus;
+exports.getBookingsForEvent = getBookingsForEvent;
+exports.getBooking = getBooking;
+exports.createBooking = createBooking;
+exports.editBooking = editBooking;
+exports.removeBooking = removeBooking;
+
+var _apolloClient = __webpack_require__(608);
+
+var _apolloClient2 = _interopRequireDefault(_apolloClient);
+
+var _graphqlTag = __webpack_require__(625);
+
+var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+var _bookings = __webpack_require__(640);
+
+var bookingQueries = _interopRequireWildcard(_bookings);
+
+var _client = __webpack_require__(619);
+
+var _client2 = _interopRequireDefault(_client);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Returns the list of bookings
+ * @param success
+ * @param error
+ */
+function getBookings(success, error) {
+    _client2.default.query({
+        // Always fetch the list from server, never use cache
+        fetchPolicy: 'network-only',
+        query: bookingQueries.getBookings
+    }).then(success).catch(error);
+}
+
+/**
+ * Changes the status of a booking
+ * @param bookingId
+ * @param success
+ * @param error
+ */
+function changeBookingStatus(bookingId, success, error) {
+    _client2.default.mutate({
+        variables: { bookingId: bookingId },
+        mutation: bookingQueries.changeBookingStatus,
+        update: function update(store, _ref) {
+            var changeBookingStatus = _ref.data.changeBookingStatus;
+
+            // Read the data from our cache for this query.
+            var data = store.readQuery({
+                query: bookingQueries.getBooking,
+                variables: { bookingId: bookingId }
+            });
+
+            data.getBooking = Object.assign({}, changeBookingStatus);
+            // Write our data back to the cache.
+            store.writeQuery({
+                query: bookingQueries.getBooking, data: data,
+                variables: { bookingId: bookingId }
+            });
+        },
+        refetchQueries: [{
+            query: bookingQueries.getBookings
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ * Returns the list of bookings for the given event
+ * @param success
+ * @param error
+ */
+function getBookingsForEvent(eventId, success, error) {
+    _client2.default.query({
+        variables: { eventId: eventId },
+        // Always fetch the list from server, never use cache
+        fetchPolicy: 'network-only',
+        query: bookingQueries.getBookingsForEvent
+    }).then(success).catch(error);
+}
+
+/**
+ * Returns the list of bookings
+ * @param bookingId
+ * @param success
+ * @param error
+ */
+function getBooking(bookingId, success, error) {
+    _client2.default.query({
+        variables: { bookingId: bookingId },
+        query: bookingQueries.getBooking
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Creates a booking
+ * @param booking
+ * @param success
+ * @param error
+ */
+function createBooking(booking, success, error) {
+    _client2.default.mutate({
+        variables: { booking: booking },
+        mutation: bookingQueries.createBooking,
+        refetchQueries: [{
+            query: bookingQueries.getBookings
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a booking
+ * @param bookingId
+ * @param booking
+ * @param success
+ * @param error
+ */
+function editBooking(bookingId, booking, success, error) {
+    _client2.default.mutate({
+        variables: { bookingId: bookingId, booking: booking },
+        mutation: bookingQueries.editBooking,
+        update: function update(store, _ref2) {
+            var editBooking = _ref2.data.editBooking;
+
+            // Read the data from our cache for this query.
+            var data = store.readQuery({
+                query: bookingQueries.getBooking,
+                variables: { bookingId: bookingId }
+            });
+
+            data.getBooking = Object.assign({}, editBooking);
+            // Write our data back to the cache.
+            store.writeQuery({
+                query: bookingQueries.getBooking, data: data,
+                variables: { bookingId: bookingId }
+            });
+        },
+        refetchQueries: [{
+            query: bookingQueries.getBookings
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a booking
+ * @param bookingId
+ * @param success
+ * @param error
+ */
+function removeBooking(bookingId, success, error) {
+    _client2.default.mutate({
+        variables: { bookingId: bookingId },
+        mutation: bookingQueries.removeBooking,
+        refetchQueries: [{
+            query: bookingQueries.getBookings
+        }]
+    }).then(success).catch(error);
+}
+
+/***/ }),
+/* 640 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.removeBooking = exports.editBooking = exports.changeBookingStatus = exports.createBooking = exports.getBookingsForEvent = exports.getBookings = exports.getBooking = undefined;
+
+var _templateObject = _taggedTemplateLiteral(['\n    fragment BasicInfo on Booking {\n        _id\n        firstName\n        lastName\n        subscribeDate\n        email\n        nbExpected\n        showedUp\n        event {\n            _id\n            name\n        }\n    }\n  '], ['\n    fragment BasicInfo on Booking {\n        _id\n        firstName\n        lastName\n        subscribeDate\n        email\n        nbExpected\n        showedUp\n        event {\n            _id\n            name\n        }\n    }\n  ']),
+    _templateObject2 = _taggedTemplateLiteral(['\n    query getBooking($bookingId: ID!) {\n      getBooking(bookingId: $bookingId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getBooking($bookingId: ID!) {\n      getBooking(bookingId: $bookingId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject3 = _taggedTemplateLiteral(['\n    query getBookings {\n      getBookings {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getBookings {\n      getBookings {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject4 = _taggedTemplateLiteral(['\n    query getBookingsForEvent($eventId: ID!) {\n      getBookingsForEvent(eventId: $eventId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getBookingsForEvent($eventId: ID!) {\n      getBookingsForEvent(eventId: $eventId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject5 = _taggedTemplateLiteral(['\n    mutation createBooking($booking: BookingInput!) {\n      createBooking(booking: $booking) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation createBooking($booking: BookingInput!) {\n      createBooking(booking: $booking) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject6 = _taggedTemplateLiteral(['\n    mutation changeBookingStatus($bookingId: ID!) {\n      changeBookingStatus(bookingId: $bookingId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation changeBookingStatus($bookingId: ID!) {\n      changeBookingStatus(bookingId: $bookingId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject7 = _taggedTemplateLiteral(['\n    mutation editBooking($bookingId: ID!, $booking: BookingInput!) {\n      editBooking(bookingId: $bookingId, booking: $booking) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation editBooking($bookingId: ID!, $booking: BookingInput!) {\n      editBooking(bookingId: $bookingId, booking: $booking) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject8 = _taggedTemplateLiteral(['\n    mutation removeBooking($bookingId: ID!) {\n      removeBooking(bookingId: $bookingId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation removeBooking($bookingId: ID!) {\n      removeBooking(bookingId: $bookingId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']);
+
+var _graphqlTag = __webpack_require__(625);
+
+var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var fragments = {
+  basicInfo: (0, _graphqlTag2.default)(_templateObject)
+};
+
+var getBooking = exports.getBooking = (0, _graphqlTag2.default)(_templateObject2, fragments.basicInfo);
+
+var getBookings = exports.getBookings = (0, _graphqlTag2.default)(_templateObject3, fragments.basicInfo);
+
+var getBookingsForEvent = exports.getBookingsForEvent = (0, _graphqlTag2.default)(_templateObject4, fragments.basicInfo);
+
+var createBooking = exports.createBooking = (0, _graphqlTag2.default)(_templateObject5, fragments.basicInfo);
+
+var changeBookingStatus = exports.changeBookingStatus = (0, _graphqlTag2.default)(_templateObject6, fragments.basicInfo);
+
+var editBooking = exports.editBooking = (0, _graphqlTag2.default)(_templateObject7, fragments.basicInfo);
+
+var removeBooking = exports.removeBooking = (0, _graphqlTag2.default)(_templateObject8, fragments.basicInfo);
 
 /***/ })
 /******/ ]);
