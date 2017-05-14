@@ -73,6 +73,7 @@ export default {
             name: 'Nom',
             capacity: 'Capacité',
             address: 'Adresse',
+            city: 'Ville',
             phone: 'Téléphone',
             website: 'Site web',
             image: 'Lien de l\'image',

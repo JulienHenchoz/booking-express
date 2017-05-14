@@ -26,7 +26,7 @@ class BookingListItem extends React.Component {
 
     onChangeStatus(e) {
         e.preventDefault();
-        this.props.dispatch(actions.changeStatus(this.props.id));
+        this.props.dispatch(actions.changeStatus(this.props._id));
     }
 
     render() {
@@ -56,7 +56,7 @@ class BookingListItem extends React.Component {
                     <li>
                         <Link
                             className="btn-floating blue btn-flat"
-                            to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.eventItem.id, this.props.id)}
+                            to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.eventItem._id, this.props._id)}
                             href="#">
                             <Icon>mode_edit</Icon>
                         </Link>

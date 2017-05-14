@@ -44,7 +44,7 @@ class Dashboard extends React.Component {
         if (this.props.data && this.props.data.latestBookings) {
             // Display the list
             const itemList = this.props.data.latestBookings.map(function (booking) {
-                return (<BookingListItem editLink={false} key={booking.id} {...booking} />);
+                return (<BookingListItem editLink={false} key={booking._id} {...booking} />);
             });
             if (itemList.length) {
                 latestBookings = (

@@ -8207,23 +8207,13 @@ function validationError(errors) {
     };
 }
 
-function addVenue(form) {
+function addVenue(venue) {
     return function (dispatch) {
         dispatch(savingVenue());
-        // TODO : Dispatch an error if the item has no id
-        fetch(ajaxRoutes.VENUE_ADD, {
-            method: "POST",
-            body: new FormData(form)
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(saveSuccess(json.object));
-            } else {
-                dispatch(saveError(json.errors));
-            }
-        }).catch(function () {
-            dispatch(saveError([]));
+        query.createVenue(venue, function (response) {
+            dispatch(saveSuccess(response.data.createVenue));
+        }, function (error) {
+            dispatch(saveError());
         });
     };
 }
@@ -8231,41 +8221,25 @@ function addVenue(form) {
 function confirmRemoveVenue(id) {
     return function (dispatch) {
         dispatch(removingVenue());
-        // TODO : Dispatch an error if the item has no id
-        fetch(_localization2.default.formatString(ajaxRoutes.VENUE_REMOVE, id), {
-            method: "DELETE"
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(removeSuccess(json.object));
-            } else {
-                dispatch(removeError(json.errors));
-            }
-        }).catch(function () {
-            dispatch(removeError([]));
+
+        query.removeVenue(id, function (response) {
+            dispatch(removeSuccess(response.data.editVenue));
+        }, function (error) {
+            dispatch(removeError());
         });
     };
 }
 
-function updateVenue(id, form) {
+function updateVenue(id, venue) {
     return function (dispatch) {
         dispatch(savingVenue());
-        // TODO : Dispatch an error if the item has no id
-        fetch(_localization2.default.formatString(ajaxRoutes.VENUE_EDIT, id), {
-            method: "POST",
-            body: new FormData(form)
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            if (json.success === true) {
-                dispatch(saveSuccess(json.object));
-            } else {
-                dispatch(saveError(json.errors));
-            }
-        }).catch(function (error) {
-            console.error(error);
-            dispatch(saveError([]));
+
+        delete venue._id;
+        delete venue.__typename;
+        query.editVenue(id, venue, function (response) {
+            dispatch(saveSuccess(response.data.editVenue));
+        }, function (error) {
+            dispatch(saveError());
         });
     };
 }
@@ -8273,13 +8247,9 @@ function updateVenue(id, form) {
 function fetchVenues() {
     return function (dispatch) {
         dispatch(loadingVenues());
-
-        fetch(ajaxRoutes.VENUES_GET).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receiveVenues(json));
-        }).catch(function (e) {
-            console.log(e);
+        query.getVenues(function (response) {
+            dispatch(receiveVenues(response.data.getVenues));
+        }, function (error) {
             dispatch(getError(_localization2.default.venues_fetch_error));
         });
     };
@@ -8289,12 +8259,10 @@ function fetchVenue(id) {
     return function (dispatch) {
         dispatch(loadingVenues());
 
-        fetch(_localization2.default.formatString(ajaxRoutes.VENUE_GET, id)).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            dispatch(receiveVenue(json));
-        }).catch(function () {
-            dispatch(getError(_localization2.default.venue_fetch_error));
+        query.getVenue(id, function (response) {
+            dispatch(receiveVenue(response.data.getVenue));
+        }, function (error) {
+            dispatch(getError(_localization2.default.venues_fetch_error));
         });
     };
 }
@@ -16527,7 +16495,7 @@ var EventListItem = function (_React$Component) {
                 _react2.default.createElement(
                     _reactRouterDom.Link,
                     {
-                        to: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props.id),
+                        to: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props._id),
                         href: "#" },
                     _react2.default.createElement(
                         "h4",
@@ -16550,7 +16518,7 @@ var EventListItem = function (_React$Component) {
                             _reactRouterDom.Link,
                             {
                                 className: "btn-floating blue btn-flat",
-                                to: _localization2.default.formatString(routes.EVENTS_EDIT, this.props.id),
+                                to: _localization2.default.formatString(routes.EVENTS_EDIT, this.props._id),
                                 href: "#" },
                             _react2.default.createElement(
                                 _reactMaterialize.Icon,
@@ -16566,7 +16534,7 @@ var EventListItem = function (_React$Component) {
                             _reactRouterDom.Link,
                             {
                                 className: "btn-floating amber btn-flat",
-                                to: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props.id),
+                                to: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props._id),
                                 href: "#" },
                             _react2.default.createElement(
                                 _reactMaterialize.Icon,
@@ -34223,7 +34191,7 @@ var BookingListItem = function (_React$Component) {
         key: "onChangeStatus",
         value: function onChangeStatus(e) {
             e.preventDefault();
-            this.props.dispatch(actions.changeStatus(this.props.id));
+            this.props.dispatch(actions.changeStatus(this.props._id));
         }
     }, {
         key: "render",
@@ -34276,7 +34244,7 @@ var BookingListItem = function (_React$Component) {
                             _reactRouterDom.Link,
                             {
                                 className: "btn-floating blue btn-flat",
-                                to: _localization2.default.formatString(routes.BOOKINGS_EDIT, this.props.eventItem.id, this.props.id),
+                                to: _localization2.default.formatString(routes.BOOKINGS_EDIT, this.props.eventItem._id, this.props._id),
                                 href: "#" },
                             _react2.default.createElement(
                                 _reactMaterialize.Icon,
@@ -34426,9 +34394,9 @@ var BookingForm = function (_React$Component) {
 
             if (!validationErrors) {
                 // If validation is OK, decide whether to update or add the current item
-                if (item.id !== undefined) {
+                if (item._id !== undefined) {
                     // If submitted item already has an ID, send an edit action
-                    this.props.dispatch(actions.updateBooking(item.id, document.getElementById('booking-form')));
+                    this.props.dispatch(actions.updateBooking(item._id, document.getElementById('booking-form')));
                 } else {
                     // Else send an Add action
                     this.props.dispatch(actions.addBooking(document.getElementById('booking-form')));
@@ -34451,7 +34419,7 @@ var BookingForm = function (_React$Component) {
         key: "onRemove",
         value: function onRemove(e) {
             e.preventDefault();
-            this.props.dispatch(actions.removeBooking(this.props.item.id));
+            this.props.dispatch(actions.removeBooking(this.props.item._id));
         }
 
         /**
@@ -34492,7 +34460,7 @@ var BookingForm = function (_React$Component) {
     }, {
         key: "isNew",
         value: function isNew() {
-            return this.props.item === null || this.props.item.id === undefined;
+            return this.props.item === null || this.props.item._id === undefined;
         }
 
         /**
@@ -34630,7 +34598,7 @@ var BookingForm = function (_React$Component) {
             // Update only if nextProps comes with a valid item, so the form never displays any "null" value
             if (nextProps.item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(nextProps.item)) {
                 nextProps.item.subscribeDate = (0, _moment2.default)().format('DD.MM.YYYY HH:mm');
-                nextProps.item.event = this.props.eventItem ? this.props.eventItem.id : 0;
+                nextProps.item.event = this.props.eventItem ? this.props.eventItem._id : 0;
                 this.setState({
                     venues: nextProps.venues,
                     fields: nextProps.item,
@@ -34660,7 +34628,7 @@ var BookingForm = function (_React$Component) {
                 "div",
                 null,
                 this.props.saveSuccess && _react2.default.createElement(_reactRouterDom.Redirect, { to: {
-                        pathname: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props.eventItem.id)
+                        pathname: _localization2.default.formatString(routes.BOOKINGS_LIST, this.props.eventItem._id)
                     } }),
                 this.props.fetching || this.props.fetchingEvent && _react2.default.createElement(_Loader2.default, null),
                 _react2.default.createElement(_ConfirmModal2.default, { title: _localization2.default.delete_booking_title,
@@ -34668,7 +34636,7 @@ var BookingForm = function (_React$Component) {
                     active: this.props.removeModal,
                     dispatch: this.props.dispatch, cancelAction: actions.cancelRemoveBooking,
                     confirmAction: actions.confirmRemoveBooking,
-                    itemId: this.props.item ? this.props.item.id : null }),
+                    itemId: this.props.item ? this.props.item._id : null }),
                 _react2.default.createElement(_FormNavBar2.default, {
                     title: this.getTitle(),
                     subtitle: this.getSubtitle(),
@@ -34907,7 +34875,7 @@ var BookingsList = function (_React$Component) {
         value: function render() {
             // Display the list
             var itemList = this.props.items.map(function (booking) {
-                return _react2.default.createElement(_BookingListItem2.default, _extends({ editLink: true, key: booking.id }, booking));
+                return _react2.default.createElement(_BookingListItem2.default, _extends({ editLink: true, key: booking._id }, booking));
             });
             var body = '';
             if (itemList.length) {
@@ -34928,7 +34896,7 @@ var BookingsList = function (_React$Component) {
                 _react2.default.createElement(_FixedNavBar2.default, {
                     title: _localization2.default.bookings_title,
                     showAddBtn: true,
-                    addRoute: _localization2.default.formatString(routes.BOOKINGS_ADD, this.props.eventItem ? this.props.eventItem.id : '') }),
+                    addRoute: _localization2.default.formatString(routes.BOOKINGS_ADD, this.props.eventItem ? this.props.eventItem._id : '') }),
                 !this.props.fetchingEvent && this.props.eventItem && _react2.default.createElement(
                     "div",
                     null,
@@ -35214,7 +35182,7 @@ var Dashboard = function (_React$Component) {
             if (this.props.data && this.props.data.latestBookings) {
                 // Display the list
                 var itemList = this.props.data.latestBookings.map(function (booking) {
-                    return _react2.default.createElement(_BookingListItem2.default, _extends({ editLink: false, key: booking.id }, booking));
+                    return _react2.default.createElement(_BookingListItem2.default, _extends({ editLink: false, key: booking._id }, booking));
                 });
                 if (itemList.length) {
                     latestBookings = _react2.default.createElement(
@@ -35484,9 +35452,9 @@ var EventForm = function (_React$Component) {
 
             if (!validationErrors) {
                 // If validation is OK, decide whether to update or add the current item
-                if (item.id !== undefined) {
+                if (item._id !== undefined) {
                     // If submitted item already has an ID, send an edit action
-                    this.props.dispatch(actions.updateEvent(item.id, document.getElementById('event-form')));
+                    this.props.dispatch(actions.updateEvent(item._id, document.getElementById('event-form')));
                 } else {
                     // Else send an Add action
                     this.props.dispatch(actions.addEvent(document.getElementById('event-form')));
@@ -35509,7 +35477,7 @@ var EventForm = function (_React$Component) {
         key: "onRemove",
         value: function onRemove(e) {
             e.preventDefault();
-            this.props.dispatch(actions.removeEvent(this.props.item.id));
+            this.props.dispatch(actions.removeEvent(this.props.item._id));
         }
 
         /**
@@ -35530,7 +35498,7 @@ var EventForm = function (_React$Component) {
         value: function onVenueSelectChange(e) {
             var venueId = e.target.value;
             var venue = this.props.venues.filter(function (venue) {
-                return venue.id == venueId;
+                return venue._id == venueId;
             });
             if (venue.length) {
                 this.onChange({
@@ -35581,7 +35549,7 @@ var EventForm = function (_React$Component) {
     }, {
         key: "isNew",
         value: function isNew() {
-            return this.props.item.id === undefined;
+            return this.props.item._id === undefined;
         }
 
         /**
@@ -35630,7 +35598,7 @@ var EventForm = function (_React$Component) {
                 var itemList = this.props.venues.map(function (venue) {
                     return _react2.default.createElement(
                         "option",
-                        { key: venue.id, value: venue.id },
+                        { key: venue._id, value: venue._id },
                         venue.name
                     );
                 });
@@ -35641,8 +35609,8 @@ var EventForm = function (_React$Component) {
                         s: 12,
                         type: "select",
                         name: "venue",
-                        error: this.state.errors['venue.id'] ? this.state.errors['venue.id'] : '',
-                        value: this.state.fields.venue ? this.state.fields.venue.id : '',
+                        error: this.state.errors['venue._id'] ? this.state.errors['venue._id'] : '',
+                        value: this.state.fields.venue ? this.state.fields.venue._id : '',
                         onChange: this.onVenueSelectChange.bind(this),
                         label: _localization2.default.fields.events.venue },
                     _react2.default.createElement(
@@ -35769,7 +35737,7 @@ var EventForm = function (_React$Component) {
                     active: this.props.removeModal,
                     dispatch: this.props.dispatch, cancelAction: actions.cancelRemoveEvent,
                     confirmAction: actions.confirmRemoveEvent,
-                    itemId: this.props.item.id ? this.props.item.id : null }),
+                    itemId: this.props.item._id ? this.props.item._id : null }),
                 _react2.default.createElement(_FormNavBar2.default, {
                     title: this.getTitle(),
                     icon: "event",
@@ -35972,7 +35940,7 @@ var EventsList = function (_React$Component) {
         value: function render() {
             // Display the list
             var itemList = this.props.items.map(function (event) {
-                return _react2.default.createElement(_EventListItem2.default, _extends({ editLink: true, key: event.id }, event));
+                return _react2.default.createElement(_EventListItem2.default, _extends({ editLink: true, key: event._id }, event));
             });
             var body = _react2.default.createElement(
                 _reactMaterialize.Collection,
@@ -36150,7 +36118,7 @@ var PastEventsList = function (_React$Component) {
         value: function render() {
             // Display the list
             var itemList = this.props.pastItems.map(function (event) {
-                return _react2.default.createElement(_EventListItem2.default, _extends({ editLink: true, key: event.id }, event));
+                return _react2.default.createElement(_EventListItem2.default, _extends({ editLink: true, key: event._id }, event));
             });
             var body = _react2.default.createElement(
                 _reactMaterialize.Collection,
@@ -36560,7 +36528,7 @@ var VenueForm = function (_React$Component) {
             // Update only if nextProps comes with a valid item, so the form never displays any "null" value
             if (nextProps.item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(nextProps.item)) {
                 this.setState({
-                    fields: nextProps.item,
+                    fields: Object.assign({}, nextProps.item),
                     errors: nextProps.errors || this.getEmptyFields()
                 });
             }
@@ -36584,12 +36552,12 @@ var VenueForm = function (_React$Component) {
 
             if (!validationErrors) {
                 // If validation is OK, decide whether to update or add the current item
-                if (item.id !== undefined) {
+                if (item._id !== undefined) {
                     // If submitted item already has an ID, send an edit action
-                    this.props.dispatch(actions.updateVenue(item.id, document.getElementById('venue-form')));
+                    this.props.dispatch(actions.updateVenue(item._id, item));
                 } else {
                     // Else send an Add action
-                    this.props.dispatch(actions.addVenue(document.getElementById('venue-form')));
+                    this.props.dispatch(actions.addVenue(item));
                 }
             } else {
                 // If there were validation errors, copy them to the state so they can be displayed in the form
@@ -36609,7 +36577,7 @@ var VenueForm = function (_React$Component) {
         key: "onRemove",
         value: function onRemove(e) {
             e.preventDefault();
-            this.props.dispatch(actions.removeVenue(this.props.item.id));
+            this.props.dispatch(actions.removeVenue(this.props.item._id));
         }
 
         /**
@@ -36650,7 +36618,7 @@ var VenueForm = function (_React$Component) {
     }, {
         key: "isNew",
         value: function isNew() {
-            return this.props.item.id === undefined;
+            return this.props.item._id === undefined;
         }
 
         /**
@@ -36686,7 +36654,8 @@ var VenueForm = function (_React$Component) {
                 onChange: this.onChange.bind(this),
                 onBlur: this.onBlur.bind(this),
                 label: _localization2.default.fields.venues[fieldName],
-                value: this.state.fields[fieldName] });
+                value: this.state.fields[fieldName] || ''
+            });
         }
 
         /**
@@ -36709,7 +36678,7 @@ var VenueForm = function (_React$Component) {
                     active: this.props.removeModal,
                     dispatch: this.props.dispatch, cancelAction: actions.cancelRemoveVenue,
                     confirmAction: actions.confirmRemoveVenue,
-                    itemId: this.props.item.id ? this.props.item.id : null }),
+                    itemId: this.props.item._id ? this.props.item._id : null }),
                 _react2.default.createElement(_FormNavBar2.default, {
                     title: this.getTitle(),
                     icon: "business",
@@ -36729,6 +36698,7 @@ var VenueForm = function (_React$Component) {
                         this.getTextInput('phone'),
                         this.getTextInput('website'),
                         this.getTextInput('address'),
+                        this.getTextInput('city'),
                         this.getTextInput('image')
                     ),
                     _react2.default.createElement(
@@ -36842,7 +36812,7 @@ var VenueListItem = function (_React$Component) {
                 _react2.default.createElement(
                     _reactRouterDom.Link,
                     {
-                        to: _localization2.default.formatString(routes.VENUES_EDIT, this.props.id),
+                        to: _localization2.default.formatString(routes.VENUES_EDIT, this.props._id),
                         href: "#" },
                     _react2.default.createElement(
                         "h4",
@@ -36852,7 +36822,9 @@ var VenueListItem = function (_React$Component) {
                     _react2.default.createElement(
                         "p",
                         null,
-                        this.props.address
+                        this.props.address,
+                        ", ",
+                        this.props.city
                     )
                 ),
                 _react2.default.createElement(
@@ -36865,7 +36837,7 @@ var VenueListItem = function (_React$Component) {
                             _reactRouterDom.Link,
                             {
                                 className: "btn-floating blue btn-flat",
-                                to: _localization2.default.formatString(routes.VENUES_EDIT, this.props.id),
+                                to: _localization2.default.formatString(routes.VENUES_EDIT, this.props._id),
                                 href: "#" },
                             _react2.default.createElement(
                                 _reactMaterialize.Icon,
@@ -37006,7 +36978,7 @@ var VenuesList = function (_React$Component) {
         value: function render() {
             // Display the list
             var itemList = this.props.items.map(function (venue) {
-                return _react2.default.createElement(_VenueListItem2.default, _extends({ key: venue.id }, venue));
+                return _react2.default.createElement(_VenueListItem2.default, _extends({ key: venue._id }, venue));
             });
             var body = _react2.default.createElement(
                 _reactMaterialize.Collection,
@@ -37119,6 +37091,7 @@ exports.default = {
             name: 'Nom',
             capacity: 'Capacité',
             address: 'Adresse',
+            city: 'Ville',
             phone: 'Téléphone',
             website: 'Site web',
             image: 'Lien de l\'image'
@@ -37286,7 +37259,7 @@ function bookings() {
             break;
         case types.CHANGING_BOOKING_STATUS:
             newState.items = newState.items.map(function (item) {
-                if (item.id === action.payload.bookingId) {
+                if (item._id === action.payload.bookingId) {
                     item.changingStatus = true;
                 }
                 return item;
@@ -37294,7 +37267,7 @@ function bookings() {
             break;
         case types.CHANGE_BOOKING_STATUS_SUCCESS:
             newState.items = newState.items.map(function (item) {
-                if (item.id === action.payload.bookingId) {
+                if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                     item.showedUp = action.payload.newStatus;
                 }
@@ -37303,7 +37276,7 @@ function bookings() {
             break;
         case types.CHANGE_BOOKING_STATUS_ERROR:
             newState.items = newState.items.map(function (item) {
-                if (item.id === action.payload.bookingId) {
+                if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                 }
                 return item;
@@ -37588,7 +37561,7 @@ function venues() {
             newState.error = action.payload;
             break;
         case types.RECEIVE_VENUE:
-            newState.item = action.payload;
+            newState.item = Object.assign({}, action.payload);
             newState.fetching = false;
             newState.error = null;
             break;
@@ -37737,7 +37710,7 @@ exports.default = {
             message: _localization2.default.validation.url
         }
     },
-    'venue.id': {
+    'venue._id': {
         presence: {
             message: _localization2.default.validation.required
         },
@@ -68018,10 +67991,11 @@ exports.version = "1.2.2"
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-
-var _templateObject = _taggedTemplateLiteral(['\n    query TodoApp {\n      todos {\n        id\n        text\n        completed\n      }\n    }\n  '], ['\n    query TodoApp {\n      todos {\n        id\n        text\n        completed\n      }\n    }\n  ']);
-
 exports.getVenues = getVenues;
+exports.getVenue = getVenue;
+exports.createVenue = createVenue;
+exports.editVenue = editVenue;
+exports.removeVenue = removeVenue;
 
 var _apolloClient = __webpack_require__(608);
 
@@ -68031,24 +68005,129 @@ var _graphqlTag = __webpack_require__(625);
 
 var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _venues = __webpack_require__(635);
 
-function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+var venueQueries = _interopRequireWildcard(_venues);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var client = new _apolloClient2.default({
     networkInterface: (0, _apolloClient.createNetworkInterface)({
-        uri: 'http://backend/'
+        uri: 'http://127.0.0.1:4000/'
     })
 });
 
+/**
+ * Returns the list of venues
+ * @param success
+ * @param error
+ */
 function getVenues(success, error) {
     client.query({
-        query: (0, _graphqlTag2.default)(_templateObject)
-    }).then(function (data) {
-        return console.log(data);
-    }).catch(function (error) {
-        return console.error(error);
-    });
+        fetchPolicy: 'network-only',
+        query: venueQueries.getVenues
+    }).then(success).catch(error);
+}
+
+/**
+ * Returns the list of venues
+ * @param venueId
+ * @param success
+ * @param error
+ */
+function getVenue(venueId, success, error) {
+    client.query({
+        variables: { venueId: venueId },
+        query: venueQueries.getVenue
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Creates a venue
+ * @param venue
+ * @param success
+ * @param error
+ */
+function createVenue(venue, success, error) {
+    console.log(venue);
+    client.mutate({
+        variables: { venue: venue },
+        mutation: venueQueries.createVenue,
+        update: function update(store, _ref) {
+            var createVenue = _ref.data.createVenue;
+
+            console.log(createVenue);
+            /*
+            // Read the data from our cache for this query.
+            let data = store.readQuery({
+                query: venueQueries.getVenue,
+                variables: {venueId: venueId},
+            });
+             data.getVenue = Object.assign({}, editVenue);
+            // Write our data back to the cache.
+            store.writeQuery({
+                query: venueQueries.getVenue, data,
+                variables: {venueId: venueId},
+            });*/
+        },
+        refetchQueries: [{
+            query: venueQueries.getVenues
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a venue
+ * @param venueId
+ * @param venue
+ * @param success
+ * @param error
+ */
+function editVenue(venueId, venue, success, error) {
+    client.mutate({
+        variables: { venueId: venueId, venue: venue },
+        mutation: venueQueries.editVenue,
+        update: function update(store, _ref2) {
+            var editVenue = _ref2.data.editVenue;
+
+            // Read the data from our cache for this query.
+            var data = store.readQuery({
+                query: venueQueries.getVenue,
+                variables: { venueId: venueId }
+            });
+
+            data.getVenue = Object.assign({}, editVenue);
+            // Write our data back to the cache.
+            store.writeQuery({
+                query: venueQueries.getVenue, data: data,
+                variables: { venueId: venueId }
+            });
+        },
+        refetchQueries: [{
+            query: venueQueries.getVenues
+        }]
+    }).then(success).catch(error);
+}
+
+/**
+ *
+ * Edits a venue
+ * @param venueId
+ * @param success
+ * @param error
+ */
+function removeVenue(venueId, success, error) {
+    client.mutate({
+        variables: { venueId: venueId },
+        mutation: venueQueries.removeVenue,
+        refetchQueries: [{
+            query: venueQueries.getVenues
+        }]
+    }).then(success).catch(error);
 }
 
 /***/ }),
@@ -70736,6 +70815,47 @@ function getVisitFn(visitor, kind, isLeaving) {
     }
   }
 }
+
+/***/ }),
+/* 635 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.removeVenue = exports.editVenue = exports.createVenue = exports.getVenues = exports.getVenue = undefined;
+
+var _templateObject = _taggedTemplateLiteral(['\n    fragment BasicInfo on Venue {\n        _id\n        name\n        address\n        city\n        capacity\n        phone\n        website\n        image\n    }\n  '], ['\n    fragment BasicInfo on Venue {\n        _id\n        name\n        address\n        city\n        capacity\n        phone\n        website\n        image\n    }\n  ']),
+    _templateObject2 = _taggedTemplateLiteral(['\n    query getVenue($venueId: ID!) {\n      getVenue(venueId: $venueId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getVenue($venueId: ID!) {\n      getVenue(venueId: $venueId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject3 = _taggedTemplateLiteral(['\n    query getVenues {\n      getVenues {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    query getVenues {\n      getVenues {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject4 = _taggedTemplateLiteral(['\n    mutation createVenue($venue: VenueInput!) {\n      createVenue(venue: $venue) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation createVenue($venue: VenueInput!) {\n      createVenue(venue: $venue) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject5 = _taggedTemplateLiteral(['\n    mutation editVenue($venueId: ID!, $venue: VenueInput!) {\n      editVenue(venueId: $venueId, venue: $venue) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation editVenue($venueId: ID!, $venue: VenueInput!) {\n      editVenue(venueId: $venueId, venue: $venue) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']),
+    _templateObject6 = _taggedTemplateLiteral(['\n    mutation removeVenue($venueId: ID!) {\n      removeVenue(venueId: $venueId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n'], ['\n    mutation removeVenue($venueId: ID!) {\n      removeVenue(venueId: $venueId) {\n        ...BasicInfo\n      }\n    }\n    ', '\n']);
+
+var _graphqlTag = __webpack_require__(625);
+
+var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var fragments = {
+  basicInfo: (0, _graphqlTag2.default)(_templateObject)
+};
+
+var getVenue = exports.getVenue = (0, _graphqlTag2.default)(_templateObject2, fragments.basicInfo);
+
+var getVenues = exports.getVenues = (0, _graphqlTag2.default)(_templateObject3, fragments.basicInfo);
+
+var createVenue = exports.createVenue = (0, _graphqlTag2.default)(_templateObject4, fragments.basicInfo);
+
+var editVenue = exports.editVenue = (0, _graphqlTag2.default)(_templateObject5, fragments.basicInfo);
+
+var removeVenue = exports.removeVenue = (0, _graphqlTag2.default)(_templateObject6, fragments.basicInfo);
 
 /***/ })
 /******/ ]);

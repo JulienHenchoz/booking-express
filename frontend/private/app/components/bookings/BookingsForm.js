@@ -60,9 +60,9 @@ class BookingForm extends React.Component {
 
         if (!validationErrors) {
             // If validation is OK, decide whether to update or add the current item
-            if (item.id !== undefined) {
+            if (item._id !== undefined) {
                 // If submitted item already has an ID, send an edit action
-                this.props.dispatch(actions.updateBooking(item.id, document.getElementById('booking-form')));
+                this.props.dispatch(actions.updateBooking(item._id, document.getElementById('booking-form')));
             }
             else {
                 // Else send an Add action
@@ -84,7 +84,7 @@ class BookingForm extends React.Component {
      */
     onRemove(e) {
         e.preventDefault();
-        this.props.dispatch(actions.removeBooking(this.props.item.id));
+        this.props.dispatch(actions.removeBooking(this.props.item._id));
     }
 
     /**
@@ -116,7 +116,7 @@ class BookingForm extends React.Component {
      * @returns {boolean}
      */
     isNew() {
-        return this.props.item === null || this.props.item.id === undefined;
+        return this.props.item === null || this.props.item._id === undefined;
     }
 
     /**
@@ -228,7 +228,7 @@ class BookingForm extends React.Component {
         // Update only if nextProps comes with a valid item, so the form never displays any "null" value
         if (nextProps.item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(nextProps.item)) {
             nextProps.item.subscribeDate = moment().format('DD.MM.YYYY HH:mm');
-            nextProps.item.event = this.props.eventItem ? this.props.eventItem.id : 0;
+            nextProps.item.event = this.props.eventItem ? this.props.eventItem._id : 0;
             this.setState({
                 venues: nextProps.venues,
                 fields: nextProps.item,
@@ -254,7 +254,7 @@ class BookingForm extends React.Component {
             <div>
                 {this.props.saveSuccess &&
                     <Redirect to={{
-                        pathname: l10n.formatString(routes.BOOKINGS_LIST, this.props.eventItem.id)
+                        pathname: l10n.formatString(routes.BOOKINGS_LIST, this.props.eventItem._id)
                     }}/>
                 }
                 {this.props.fetching || this.props.fetchingEvent &&
@@ -266,7 +266,7 @@ class BookingForm extends React.Component {
                               active={this.props.removeModal}
                               dispatch={this.props.dispatch} cancelAction={actions.cancelRemoveBooking}
                               confirmAction={actions.confirmRemoveBooking}
-                              itemId={this.props.item ? this.props.item.id : null}/>
+                              itemId={this.props.item ? this.props.item._id : null}/>
 
                 <FormNavBar
                     title={this.getTitle()}

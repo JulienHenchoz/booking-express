@@ -34,6 +34,9 @@ let venue = mongoose.Schema(
         name: String,
         address: String,
         city: String,
+        phone: String,
+        website: String,
+        image: String,
         capacity: Number,
         events: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
     }

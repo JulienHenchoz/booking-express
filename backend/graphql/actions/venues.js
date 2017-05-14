@@ -1,11 +1,20 @@
 /*jshint esversion: 6 */
-let mongoose = require('mongoose');
 let models = require('../../entity/models');
 
-function get() {
-    return {
-        _id: 1
-    };
+function get(root, args) {
+    let venueId = args.venueId;
+    return new Promise((resolve, reject) => {
+        models.venue.findById(venueId, function (err, venue) {
+            if (venue) {
+                resolve(models.venue
+                    .populate(venue, 'events')
+                );
+            }
+            else {
+                reject('Venue does not exist');
+            }
+        });
+    });
 }
 
 function list() {

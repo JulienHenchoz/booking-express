@@ -22,7 +22,7 @@ export default function venues(state = initialState, action) {
             newState.error = action.payload;
             break;
         case types.RECEIVE_VENUE:
-            newState.item = action.payload;
+            newState.item = Object.assign({}, action.payload);
             newState.fetching = false;
             newState.error = null;
             break;

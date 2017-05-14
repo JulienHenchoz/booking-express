@@ -68,6 +68,9 @@ let venue = new graphql.GraphQLInputObjectType({
         website: {
             type: graphql.GraphQLString
         },
+        image: {
+            type: graphql.GraphQLString
+        },
         capacity: {
             type: graphql.GraphQLInt
         }

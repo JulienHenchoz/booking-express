@@ -113,117 +113,80 @@ export function validationError(errors) {
     };
 }
 
-export function addVenue(form) {
+export function addVenue(venue) {
     return dispatch => {
         dispatch(savingVenue());
-        // TODO : Dispatch an error if the item has no id
-        fetch(ajaxRoutes.VENUE_ADD, {
-            method: "POST",
-            body: new FormData(form)
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(saveSuccess(json.object));
-                }
-                else {
-                    dispatch(saveError(json.errors));
-                }
-            })
-            .catch(function() {
-                dispatch(saveError([]));
+        query.createVenue(
+            venue,
+            function (response) {
+                dispatch(saveSuccess(response.data.createVenue));
+            },
+            function (error) {
+                dispatch(saveError());
             });
-    }
+    };
 }
 
 export function confirmRemoveVenue(id) {
     return dispatch => {
         dispatch(removingVenue());
-        // TODO : Dispatch an error if the item has no id
-        fetch(l10n.formatString(ajaxRoutes.VENUE_REMOVE, id), {
-            method: "DELETE",
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(removeSuccess(json.object));
-                }
-                else {
-                    dispatch(removeError(json.errors));
-                }
-            })
-            .catch(function() {
-                dispatch(removeError([]));
+
+        query.removeVenue(
+            id,
+            function (response) {
+                dispatch(removeSuccess(response.data.editVenue));
+            },
+            function (error) {
+                dispatch(removeError());
             });
-    }
+    };
 }
 
 
-export function updateVenue(id, form) {
+export function updateVenue(id, venue) {
     return dispatch => {
         dispatch(savingVenue());
-        // TODO : Dispatch an error if the item has no id
-        fetch(l10n.formatString(ajaxRoutes.VENUE_EDIT, id), {
-            method: "POST",
-            body: new FormData(form)
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                if (json.success === true) {
-                    dispatch(saveSuccess(json.object));
-                }
-                else {
-                    dispatch(saveError(json.errors));
-                }
-            })
-            .catch(function(error) {
-                console.error(error);
-                dispatch(saveError([]));
+
+        delete venue._id;
+        delete venue.__typename;
+        query.editVenue(
+            id,
+            venue,
+            function (response) {
+                dispatch(saveSuccess(response.data.editVenue));
+            },
+            function (error) {
+                dispatch(saveError());
             });
-    }
+    };
 }
 
 
 export function fetchVenues() {
     return dispatch => {
         dispatch(loadingVenues());
-
-
-        fetch(ajaxRoutes.VENUES_GET)
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveVenues(json));
-            })
-            .catch(function(e) {
-                console.log(e);
+        query.getVenues(
+            function (response) {
+                dispatch(receiveVenues(response.data.getVenues));
+            },
+            function (error) {
                 dispatch(getError(l10n.venues_fetch_error));
             });
-    }
+    };
 }
 
 export function fetchVenue(id) {
     return dispatch => {
         dispatch(loadingVenues());
 
-        fetch(l10n.formatString(ajaxRoutes.VENUE_GET, id))
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveVenue(json));
-            })
-            .catch(function() {
-                dispatch(getError(l10n.venue_fetch_error));
+        query.getVenue(
+            id,
+            function (response) {
+                dispatch(receiveVenue(response.data.getVenue));
+            },
+            function (error) {
+                dispatch(getError(l10n.venues_fetch_error));
             });
-
-    }
+    };
 }
 

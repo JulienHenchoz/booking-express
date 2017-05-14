@@ -64,9 +64,9 @@ class EventForm extends React.Component {
 
         if (!validationErrors) {
             // If validation is OK, decide whether to update or add the current item
-            if (item.id !== undefined) {
+            if (item._id !== undefined) {
                 // If submitted item already has an ID, send an edit action
-                this.props.dispatch(actions.updateEvent(item.id, document.getElementById('event-form')));
+                this.props.dispatch(actions.updateEvent(item._id, document.getElementById('event-form')));
             }
             else {
                 // Else send an Add action
@@ -88,7 +88,7 @@ class EventForm extends React.Component {
      */
     onRemove(e) {
         e.preventDefault();
-        this.props.dispatch(actions.removeEvent(this.props.item.id));
+        this.props.dispatch(actions.removeEvent(this.props.item._id));
     }
 
     /**
@@ -105,7 +105,7 @@ class EventForm extends React.Component {
     onVenueSelectChange(e) {
         let venueId = e.target.value;
         let venue = this.props.venues.filter(function (venue) {
-            return venue.id == venueId;
+            return venue._id == venueId;
         });
         if (venue.length) {
             this.onChange({
@@ -147,7 +147,7 @@ class EventForm extends React.Component {
      * @returns {boolean}
      */
     isNew() {
-        return this.props.item.id === undefined;
+        return this.props.item._id === undefined;
     }
 
     /**
@@ -188,7 +188,7 @@ class EventForm extends React.Component {
         // Display the list
         if (this.props.venues !== undefined) {
             const itemList = this.props.venues.map(function (venue) {
-                return (<option key={venue.id} value={venue.id}>{venue.name}</option>);
+                return (<option key={venue._id} value={venue._id}>{venue.name}</option>);
             });
 
             return (
@@ -196,8 +196,8 @@ class EventForm extends React.Component {
                     s={12}
                     type='select'
                     name="venue"
-                    error={this.state.errors['venue.id'] ? this.state.errors['venue.id'] : ''}
-                    value={this.state.fields.venue ? this.state.fields.venue.id : ''}
+                    error={this.state.errors['venue._id'] ? this.state.errors['venue._id'] : ''}
+                    value={this.state.fields.venue ? this.state.fields.venue._id : ''}
                     onChange={this.onVenueSelectChange.bind(this)}
                     label={l10n.fields.events.venue}>
                     <option value="" disabled>{l10n.venue_select_default}</option>
@@ -301,7 +301,7 @@ class EventForm extends React.Component {
                               active={this.props.removeModal}
                               dispatch={this.props.dispatch} cancelAction={actions.cancelRemoveEvent}
                               confirmAction={actions.confirmRemoveEvent}
-                              itemId={this.props.item.id ? this.props.item.id : null}/>
+                              itemId={this.props.item._id ? this.props.item._id : null}/>
 
                 <FormNavBar
                     title={this.getTitle()}

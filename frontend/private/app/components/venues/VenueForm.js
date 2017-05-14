@@ -51,7 +51,7 @@ class VenueForm extends React.Component {
             this.state = {
                 fields: this.getEmptyFields(),
                 errors: this.getEmptyFields(),
-            }
+            };
     }
 
     /**
@@ -101,7 +101,7 @@ class VenueForm extends React.Component {
         // Update only if nextProps comes with a valid item, so the form never displays any "null" value
         if (nextProps.item !== undefined && nextProps.item !== null && !utils.objectIsEmpty(nextProps.item)) {
             this.setState({
-                fields: nextProps.item,
+                fields: Object.assign({}, nextProps.item),
                 errors: nextProps.errors || this.getEmptyFields()
             });
         }
@@ -126,13 +126,13 @@ class VenueForm extends React.Component {
 
         if (!validationErrors) {
             // If validation is OK, decide whether to update or add the current item
-            if (item.id !== undefined) {
+            if (item._id !== undefined) {
                 // If submitted item already has an ID, send an edit action
-                this.props.dispatch(actions.updateVenue(item.id, document.getElementById('venue-form')));
+                this.props.dispatch(actions.updateVenue(item._id, item));
             }
             else {
                 // Else send an Add action
-                this.props.dispatch(actions.addVenue(document.getElementById('venue-form')));
+                this.props.dispatch(actions.addVenue(item));
             }
         }
         else {
@@ -150,7 +150,7 @@ class VenueForm extends React.Component {
      */
     onRemove(e) {
         e.preventDefault();
-        this.props.dispatch(actions.removeVenue(this.props.item.id));
+        this.props.dispatch(actions.removeVenue(this.props.item._id));
     }
 
     /**
@@ -182,7 +182,7 @@ class VenueForm extends React.Component {
      * @returns {boolean}
      */
     isNew() {
-        return this.props.item.id === undefined;
+        return this.props.item._id === undefined;
     }
 
     /**
@@ -214,7 +214,8 @@ class VenueForm extends React.Component {
                    onChange={this.onChange.bind(this)}
                    onBlur={this.onBlur.bind(this)}
                    label={l10n.fields.venues[fieldName]}
-                   value={this.state.fields[fieldName]}/>
+                   value={this.state.fields[fieldName] || ''}
+            />
         )
     }
 
@@ -240,7 +241,7 @@ class VenueForm extends React.Component {
                               active={this.props.removeModal}
                               dispatch={this.props.dispatch} cancelAction={actions.cancelRemoveVenue}
                               confirmAction={actions.confirmRemoveVenue}
-                              itemId={this.props.item.id ? this.props.item.id : null}/>
+                              itemId={this.props.item._id ? this.props.item._id : null}/>
 
                 <FormNavBar
                     title={this.getTitle()}
@@ -258,6 +259,7 @@ class VenueForm extends React.Component {
                         {this.getTextInput('phone')}
                         {this.getTextInput('website')}
                         {this.getTextInput('address')}
+                        {this.getTextInput('city')}
                         {this.getTextInput('image')}
                     </Row>
                     <Row>

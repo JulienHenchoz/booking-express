@@ -111,7 +111,7 @@ class BookingsList extends React.Component {
     render() {
         // Display the list
         const itemList = this.props.items.map(function (booking) {
-            return (<BookingListItem editLink={true} key={booking.id} {...booking} />);
+            return (<BookingListItem editLink={true} key={booking._id} {...booking} />);
         });
         let body = '';
         if (itemList.length) {
@@ -131,7 +131,7 @@ class BookingsList extends React.Component {
                 <FixedNavBar
                     title={l10n.bookings_title}
                     showAddBtn={true}
-                    addRoute={l10n.formatString(routes.BOOKINGS_ADD, this.props.eventItem ? this.props.eventItem.id : '')}/>
+                    addRoute={l10n.formatString(routes.BOOKINGS_ADD, this.props.eventItem ? this.props.eventItem._id : '')}/>
 
                 {!this.props.fetchingEvent && this.props.eventItem &&
                 <div>

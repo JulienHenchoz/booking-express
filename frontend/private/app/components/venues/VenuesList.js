@@ -54,7 +54,7 @@ class VenuesList extends React.Component {
     render() {
         // Display the list
         let itemList = this.props.items.map(function (venue) {
-            return (<VenueListItem key={venue.id} {...venue} />);
+            return (<VenueListItem key={venue._id} {...venue} />);
         });
         let body = (
             <Collection>

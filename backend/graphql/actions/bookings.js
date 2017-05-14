@@ -1,10 +1,20 @@
 /*jshint esversion: 6 */
 let models = require('../../entity/models');
 
-function get() {
-    return {
-        _id: 1
-    };
+function get(root, args) {
+    let bookingId = args.bookingId;
+    return new Promise((resolve, reject) => {
+        models.booking.findById(bookingId, function (err, booking) {
+            if (booking) {
+                resolve(models.booking
+                    .populate(booking, 'event')
+                );
+            }
+            else {
+                reject('Booking does not exist');
+            }
+        });
+    });
 }
 
 function list(root, args) {

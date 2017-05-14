@@ -34,7 +34,7 @@ class EventListItem extends React.Component {
                 <DateTimeBox className="circle" dateTime={this.props.startDate}/>
 
                 <Link
-                    to={l10n.formatString(routes.BOOKINGS_LIST, this.props.id)}
+                    to={l10n.formatString(routes.BOOKINGS_LIST, this.props._id)}
                     href="#">
                     <h4>{this.props.name}</h4>
                     <p>{this.props.venue.name}</p>
@@ -45,7 +45,7 @@ class EventListItem extends React.Component {
                     <li>
                         <Link
                             className="btn-floating blue btn-flat"
-                            to={l10n.formatString(routes.EVENTS_EDIT, this.props.id)}
+                            to={l10n.formatString(routes.EVENTS_EDIT, this.props._id)}
                             href="#">
                             <Icon>mode_edit</Icon>
                         </Link>
@@ -55,7 +55,7 @@ class EventListItem extends React.Component {
                     <li>
                         <Link
                             className="btn-floating amber btn-flat"
-                            to={l10n.formatString(routes.BOOKINGS_LIST, this.props.id)}
+                            to={l10n.formatString(routes.BOOKINGS_LIST, this.props._id)}
                             href="#">
                             <Icon>email</Icon>
                         </Link>

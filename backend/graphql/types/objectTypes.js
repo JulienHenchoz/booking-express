@@ -100,6 +100,9 @@ let venue = new graphql.GraphQLObjectType({
         website: {
             type: graphql.GraphQLString
         },
+        image: {
+            type: graphql.GraphQLString
+        },
         capacity: {
             type: graphql.GraphQLInt
         },

@@ -94,7 +94,7 @@ export default function bookings(state = initialState, action) {
             break;
         case types.CHANGING_BOOKING_STATUS:
             newState.items = newState.items.map(function(item) {
-                if (item.id === action.payload.bookingId) {
+                if (item._id === action.payload.bookingId) {
                     item.changingStatus = true;
                 }
                 return item;
@@ -102,7 +102,7 @@ export default function bookings(state = initialState, action) {
             break;
         case types.CHANGE_BOOKING_STATUS_SUCCESS:
             newState.items = newState.items.map(function(item) {
-                if (item.id === action.payload.bookingId) {
+                if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                     item.showedUp = action.payload.newStatus;
                 }
@@ -111,7 +111,7 @@ export default function bookings(state = initialState, action) {
             break;
         case types.CHANGE_BOOKING_STATUS_ERROR:
             newState.items = newState.items.map(function(item) {
-                if (item.id === action.payload.bookingId) {
+                if (item._id === action.payload.bookingId) {
                     item.changingStatus = false;
                 }
                 return item;

@@ -25,6 +25,15 @@ let queryType = new graphql.GraphQLObjectType({
                 resolve: venueActions.get
             },
         },
+        getVenue: {
+            type: objectTypes.venue,
+            args: {
+                venueId: {
+                    type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                }
+            },
+            resolve: venueActions.get
+        },
         /**
          * Events
          */

@@ -79,7 +79,7 @@ class EventsList extends React.Component {
     render() {
         // Display the list
         const itemList = this.props.items.map(function (event) {
-            return (<EventListItem editLink={true} key={event.id} {...event} />);
+            return (<EventListItem editLink={true} key={event._id} {...event} />);
         });
         let body = (
             <Collection>

@@ -12,7 +12,7 @@ export default {
             message: l10n.validation.url
         }
     },
-    'venue.id': {
+    'venue._id': {
         presence: {
             message: l10n.validation.required
         },
