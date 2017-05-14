@@ -50,17 +50,6 @@ function create(value, args) {
                     else {
                         console.log("Saved booking to DB");
                     }
-                    eventObj.bookings.push(savedBooking);
-                    eventObj.save(function (err, savedEvent) {
-                        if (err) {
-                            console.error(err);
-                            reject(err);
-                        }
-                        else {
-                            console.log("Added booking to event in DB");
-                            resolve(models.booking.populate(savedBooking, 'event'));
-                        }
-                    });
                 });
             }
             else {
@@ -87,7 +76,7 @@ function edit(root, args) {
             function (err, booking) {
                 if (booking) {
                     console.log('Edited booking ' + args.bookingId);
-                    resolve(Event.populate(booking, 'event'));
+                    resolve(models.event.populate(booking, 'event'));
                 }
                 else {
                     console.error(err);

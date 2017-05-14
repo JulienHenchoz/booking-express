@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 const fragments = {
-    basicInfo: gql`
-    fragment BasicInfo on Booking {
+    bookingsBasicInfo: gql`
+    fragment BookingsBasicInfo on Booking {
         _id
         firstName
         lastName
@@ -21,63 +21,63 @@ const fragments = {
 export const getBooking = gql`
     query getBooking($bookingId: ID!) {
       getBooking(bookingId: $bookingId) {
-        ...BasicInfo
+        ...BookingsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${fragments.bookingsBasicInfo}
 `;
 
 export const getBookings = gql`
     query getBookings {
       getBookings {
-        ...BasicInfo
+        ...BookingsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${fragments.bookingsBasicInfo}
 `;
 
 
 export const getBookingsForEvent = gql`
     query getBookingsForEvent($eventId: ID!) {
       getBookingsForEvent(eventId: $eventId) {
-        ...BasicInfo
+        ...BookingsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${fragments.bookingsBasicInfo}
 `;
 
 export const createBooking = gql`
     mutation createBooking($booking: BookingInput!) {
       createBooking(booking: $booking) {
-        ...BasicInfo
+        ...BookingsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${fragments.bookingsBasicInfo}
 `;
 
 export const changeBookingStatus = gql`
     mutation changeBookingStatus($bookingId: ID!) {
       changeBookingStatus(bookingId: $bookingId) {
-        ...BasicInfo
+        ...BookingsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${fragments.bookingsBasicInfo}
 `;
 
 export const editBooking = gql`
     mutation editBooking($bookingId: ID!, $booking: BookingInput!) {
       editBooking(bookingId: $bookingId, booking: $booking) {
-        ...BasicInfo
+        ...BookingsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${fragments.bookingsBasicInfo}
 `;
 
 export const removeBooking = gql`
     mutation removeBooking($bookingId: ID!) {
       removeBooking(bookingId: $bookingId) {
-        ...BasicInfo
+        ...BookingsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${fragments.bookingsBasicInfo}
 `;

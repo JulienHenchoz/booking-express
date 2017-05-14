@@ -1,34 +1,51 @@
 import gql from 'graphql-tag';
 
-const fragments = {
-    basicInfo: gql`
-    fragment BasicInfo on Event {
+const editableFieldsFragment = gql`
+    fragment EditableFields on Event {
         _id
         name
         startDate
-        nbExpected
-        nbBookings
+        description
         venue {
             _id
             name
         }
+    }`;
+
+
+const eventsBasicInfoFragment = gql`
+    fragment EventsBasicInfo on Event {
+        ...EditableFields
+        nbExpected
+        nbBookings
+        seatsLeft
+        occupancyPercentage
     }
-  `
-};
+    ${editableFieldsFragment}
+    `;
+
+export const getEventForEditForm = gql`
+    query getEvent($eventId: ID!) {
+      getEvent(eventId: $eventId) {
+        ...EditableFields
+      }
+    }
+    ${editableFieldsFragment}
+`;
 
 export const getEvent = gql`
     query getEvent($eventId: ID!) {
       getEvent(eventId: $eventId) {
-        ...BasicInfo
+        ...EventsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${eventsBasicInfoFragment}
 `;
 
 export const getEventWithBookings = gql`
     query getEvent($eventId: ID!) {
       getEvent(eventId: $eventId) {
-        ...BasicInfo
+        ...EventsBasicInfo
         bookings {
             _id
             firstName
@@ -41,52 +58,51 @@ export const getEventWithBookings = gql`
         }
       }
     }
-    ${fragments.basicInfo}
+    ${eventsBasicInfoFragment}
 `;
 
 export const getEvents = gql`
     query getEvents {
       getEvents {
-        ...BasicInfo
+        ...EventsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${eventsBasicInfoFragment}
 `;
 
 export const getPastEvents = gql`
     query getPastEvents {
       getPastEvents {
-        ...BasicInfo
+        ...EventsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${eventsBasicInfoFragment}
 `;
-
 
 
 export const createEvent = gql`
     mutation createEvent($event: EventInput!) {
       createEvent(event: $event) {
-        ...BasicInfo
+        ...EventsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${eventsBasicInfoFragment}
 `;
 
 export const editEvent = gql`
     mutation editEvent($eventId: ID!, $event: EventInput!) {
       editEvent(eventId: $eventId, event: $event) {
-        ...BasicInfo
+        ...EventsBasicInfo
       }
     }
-    ${fragments.basicInfo}
+    ${eventsBasicInfoFragment}
 `;
 
 export const removeEvent = gql`
     mutation removeEvent($eventId: ID!) {
       removeEvent(eventId: $eventId) {
-        ...BasicInfo
+        _id
+        name
       }
     }
-    ${fragments.basicInfo}
 `;

@@ -271,15 +271,18 @@ class BookingForm extends React.Component {
 
                 <FormNavBar
                     title={this.getTitle()}
-                    subtitle={this.getSubtitle()}
                     icon="email"
                     showRemoveBtn={!this.isNew()}
                     onValidate={this.onSubmit.bind(this)}
                     onRemove={this.onRemove.bind(this)}
                 />
 
-                <form id="booking-form" style={{opacity: this.props.fetching || this.props.fetchingEvent ? 0.3 : 1}}
+                <form id="booking-form" className="page" style={{opacity: this.props.fetching || this.props.fetchingEvent ? 0.3 : 1}}
                       onSubmit={this.onSubmit.bind(this)}>
+                    <h1>
+                        {this.getTitle()}
+                        <span>{this.getSubtitle()}</span>
+                    </h1>
                     <Row>
                         {this.getTextInput('firstName')}
                         {this.getTextInput('lastName')}

@@ -12,14 +12,14 @@ export default {
             message: l10n.validation.url
         }
     },
+    startDate: {
+        presence: {
+            message: l10n.validation.required
+        },
+    },
     'venue._id': {
         presence: {
             message: l10n.validation.required
         },
-        numericality: {
-            onlyInteger: true,
-            greaterThan: 0,
-            message: l10n.validation.numberGreaterThanZero
-        }
     }
 };

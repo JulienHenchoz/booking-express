@@ -41,6 +41,10 @@ let queryType = new graphql.GraphQLObjectType({
             type: new graphql.GraphQLList(objectTypes.event),
             resolve: eventActions.list
         },
+        getPastEvents: {
+            type: new graphql.GraphQLList(objectTypes.event),
+            resolve: eventActions.listPast
+        },
         getEvent: {
             type: objectTypes.event,
             args: {

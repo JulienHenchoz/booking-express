@@ -22,7 +22,7 @@ let event = mongoose.Schema(
         id: mongoose.Schema.Types.ObjectId,
         name: String,
         description: String,
-        startDate: Number,
+        startDate: String,
         venue: { type: Schema.Types.ObjectId, ref: 'Venue' },
         bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
     }

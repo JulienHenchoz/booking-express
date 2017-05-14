@@ -244,15 +244,17 @@ class VenueForm extends React.Component {
                               itemId={this.props.item._id ? this.props.item._id : null}/>
 
                 <FormNavBar
-                    title={this.getTitle()}
                     icon="business"
                     showRemoveBtn={!this.isNew()}
                     onValidate={this.onSubmit.bind(this)}
                     onRemove={this.onRemove.bind(this)}
                 />
 
-                <form id="venue-form" style={{opacity: this.props.fetching ? 0.3 : 1}}
+                <form id="venue-form" className="page" style={{opacity: this.props.fetching ? 0.3 : 1}}
                       onSubmit={this.onSubmit.bind(this)}>
+                    <h1>
+                        {this.getTitle()}
+                    </h1>
                     <Row>
                         {this.getTextInput('name')}
                         {this.getTextInput('capacity')}

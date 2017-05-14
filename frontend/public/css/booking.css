@@ -6787,12 +6787,13 @@ td.rdtYear:hover {
 
 h1 {
   color: #333;
-  font-size: 3.2em;
-  margin: 0;
+  font-size: 2.8em !important;
+  margin-top: 0 !important;
+  margin-bottom: 0.2em;
   padding: 20px 10px; }
   @media (max-width: 768px) {
     h1 {
-      font-size: 1.8em; } }
+      font-size: 1.8em !important; } }
   h1 span {
     font-size: 0.6em;
     display: block; }
@@ -6859,9 +6860,6 @@ h4 {
   .collection .collection-item .collection-image img {
     max-width: 200px;
     width: 100%; }
-  .collection .collection-item .secondary-content:not(.loading) {
-    position: relative !important;
-    right: 0 !important; }
   .collection .collection-item .secondary-content .preloader-wrapper {
     top: 8px; }
   .collection .collection-item .secondary-content .fixed-action-btn {
@@ -6920,7 +6918,7 @@ nav {
 .datetime-box span {
   color: #2196F3;
   display: block;
-  font-size: 12px;
+  font-size: 0.8em;
   line-height: 1.2em; }
   .datetime-box span.month-day {
     font-size: 2em;
@@ -6957,6 +6955,11 @@ nav {
 
 .bookings-page .reload-block {
   height: auto; }
+
+.bookings-page h1 small {
+  font-size: 50%;
+  text-align: center;
+  margin-top: -18px; }
 
 .fadein-enter {
   opacity: 0.01; }
@@ -7008,3 +7011,6 @@ nav {
     font-size: 14px;
     line-height: 1.2em;
     display: inline-block; }
+
+.page {
+  padding: 5%; }

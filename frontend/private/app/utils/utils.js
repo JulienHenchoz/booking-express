@@ -1,5 +1,5 @@
 export function objectIsEmpty(obj) {
-    return Object.keys(obj).length === 0 && obj.constructor === Object
+    return !obj || Object.keys(obj).length === 0 && obj.constructor === Object;
 }
 
 export function toastSuccess(message) {
@@ -22,8 +22,13 @@ export function getErrors(validationErrors) {
 
 export function replaceEmptyWithNull(object) {
     var newObject = {};
-    Object.keys(object).forEach(function(index) {
-        newObject[index] = object[index] ? object[index] : null;
-    });
+    if (typeof(object) === 'object') {
+        Object.keys(object).forEach(function (index) {
+            newObject[index] = object[index] ? object[index] : null;
+        });
+    }
+    else {
+        return object;
+    }
     return newObject;
 }

@@ -42,17 +42,6 @@ class VenueListItem extends React.Component {
                     <h4>{this.props.name}</h4>
                     <p>{this.props.address}, {this.props.city}</p>
                 </Link>
-
-                <FixedActionButton>
-                    <li>
-                        <Link
-                            className="btn-floating blue btn-flat"
-                            to={l10n.formatString(routes.VENUES_EDIT, this.props._id)}
-                            href="#">
-                            <Icon>mode_edit</Icon>
-                        </Link>
-                    </li>
-                </FixedActionButton>
             </div>
         );
     }

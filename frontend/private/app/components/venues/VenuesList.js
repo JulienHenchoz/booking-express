@@ -67,18 +67,20 @@ class VenuesList extends React.Component {
             <div>
                 <FixedNavBar title={l10n.venues_title} showAddBtn={true} addRoute={routes.VENUES_ADD}/>
 
-                {this.props.fetching &&
+                <div className="page">
+                    {this.props.fetching &&
 
-                <Loader />
-                }
+                    <Loader />
+                    }
 
-                {this.props.error && !this.prop.fetching &&
-                <Reload onClick={this.fetchVenues.bind(this)} error={this.props.error}/>
-                }
+                    {this.props.error && !this.prop.fetching &&
+                    <Reload onClick={this.fetchVenues.bind(this)} error={this.props.error}/>
+                    }
 
-                {!this.props.fetching && this.state.finishedRefresh && !this.props.error &&
-                body
-                }
+                    {!this.props.fetching && this.state.finishedRefresh && !this.props.error &&
+                    body
+                    }
+                </div>
             </div>
         )
     }

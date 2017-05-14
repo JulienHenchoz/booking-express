@@ -3,6 +3,7 @@ import * as ajaxRoutes from '../constants/ajaxRoutes';
 import * as utils from '../utils/utils';
 import l10n from '../l10n/localization';
 import * as queries from '../graphql/actions/events';
+import moment from 'moment';
 
 export function loadingEvents() {
     return {
@@ -124,12 +125,14 @@ export function addEvent(event) {
     return dispatch => {
         dispatch(savingEvent());
 
+        event.venue = event.venue._id;
         queries.createEvent(
             event,
             function (response) {
                 dispatch(saveSuccess(response.data.createVenue));
             },
             function (error) {
+                console.error(error);
                 dispatch(saveError());
             });
     };
@@ -145,6 +148,7 @@ export function confirmRemoveEvent(id) {
                 dispatch(removeSuccess(response.data.removeEvent));
             },
             function (error) {
+                console.error(error);
                 dispatch(removeError());
             });
     };
@@ -157,6 +161,7 @@ export function updateEvent(id, event) {
 
         delete event._id;
         delete event.__typename;
+        event.venue = event.venue._id;
         queries.editEvent(
             id,
             event,
@@ -164,6 +169,7 @@ export function updateEvent(id, event) {
                 dispatch(saveSuccess(response.data.editEvent));
             },
             function (error) {
+                console.error(error);
                 dispatch(saveError());
             });
     };
@@ -213,6 +219,24 @@ export function fetchEvent(id) {
     };
 }
 
+export function fetchEventForEditForm(id) {
+    return dispatch => {
+        dispatch(loadingEvents());
+
+        queries.getEventForEditForm(
+            id,
+            function (response) {
+                dispatch(receiveEvent(response.data.getEvent));
+            },
+            function (error) {
+                dispatch(getError(l10n.events_fetch_error));
+            });
+    };
+}
+
+
+
+
 export function fetchEventWithBookings(id) {
     return dispatch => {
         dispatch(loadingEvents());
@@ -227,6 +251,5 @@ export function fetchEventWithBookings(id) {
             });
     };
 }
-
 
 

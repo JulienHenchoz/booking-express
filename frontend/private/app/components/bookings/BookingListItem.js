@@ -33,12 +33,12 @@ export default class BookingListItem extends React.Component {
                     <span className="year">{l10n.fields.bookings.persons}</span>
                 </div>
 
-                <a href="#" onClick={this.onChangeStatus.bind(this)}>
-
+                <Link
+                    to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.event._id, this.props._id)}
+                    href="#">
                     <h4>{this.props.lastName.toUpperCase()} {this.props.firstName}</h4>
                     <p>{moment(this.props.subscribeDate).format('D MMM YYYY à HH:mm')}</p>
-                </a>
-
+                </Link>
 
                 {this.props.changingStatus &&
                 <div className="secondary-content loading">
@@ -47,18 +47,18 @@ export default class BookingListItem extends React.Component {
                 }
 
                 {!this.props.changingStatus &&
-                <FixedActionButton>
+                <div className="secondary-content">
                     {this.props.editLink &&
                     <li>
-                        <Link
-                            className="btn-floating blue btn-flat"
+                        <a onClick={this.onChangeStatus.bind(this)}
+                            className="btn-floating btn-flat grey"
                             to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.event._id, this.props._id)}
                             href="#">
-                            <Icon>mode_edit</Icon>
-                        </Link>
+                            <Icon>check</Icon>
+                        </a>
                     </li>
                     }
-                </FixedActionButton>
+                </div>
                 }
 
             </li>

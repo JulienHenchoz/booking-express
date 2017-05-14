@@ -23,7 +23,7 @@ export default function events(state = initialState, action) {
             newState.error = action.payload;
             break;
         case types.RECEIVE_EVENT:
-            newState.item = action.payload;
+            newState.item = Object.assign({}, action.payload);
             newState.fetching = false;
             newState.error = null;
             break;
@@ -71,6 +71,7 @@ export default function events(state = initialState, action) {
          */
         case types.EDIT_EVENT:
             newState.formErrors = {};
+            newState.item = newState.item ? newState.item : {};
             newState.item[action.property] = action.payload;
             break;
         case types.SAVING_EVENT:

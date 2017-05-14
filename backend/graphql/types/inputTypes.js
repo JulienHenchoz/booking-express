@@ -42,7 +42,7 @@ let event = new graphql.GraphQLInputObjectType({
             type: new graphql.GraphQLNonNull(graphql.GraphQLString)
         },
         startDate: {
-            type: graphql.GraphQLInt
+            type: graphql.GraphQLString
         },
         description: {
             type: graphql.GraphQLString

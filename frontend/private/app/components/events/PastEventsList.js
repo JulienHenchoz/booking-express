@@ -57,7 +57,7 @@ class PastEventsList extends React.Component {
     getEmptyMessage() {
         if (this.isListEmpty() && !this.props.fetching) {
             return (
-                <Reload onClick={this.onReload.bind(this)} error={l10n.no_events} />
+                <Reload onClick={this.onReload.bind(this)} error={l10n.no_events}/>
             );
         }
     }
@@ -77,31 +77,46 @@ class PastEventsList extends React.Component {
      * @returns {XML}
      */
     render() {
-        // Display the list
-        const itemList = this.props.pastItems.map(function (event) {
-            return (<EventListItem editLink={true} key={event._id} {...event} />);
-        });
-        let body = (
-            <Collection>
-                {itemList}
-            </Collection>
-        );
+        let body = '';
+        if (!this.isListEmpty()) {
+            let itemList = '';
+
+            // Display the list
+            itemList = this.props.pastItems.map(function (event) {
+                return (<EventListItem editLink={true} key={event._id} {...event} />);
+            });
+            body = (
+                <Collection>
+                    {itemList}
+                </Collection>
+            );
+        }
 
         return (
             <div>
-                <FixedNavBar title={l10n.past_events_title} showAddBtn={false} />
+                <FixedNavBar title={l10n.past_events_title} showAddBtn={false}/>
 
-                {this.props.fetching &&
+                <div className="page">
+                    {this.props.fetching &&
                     <Loader />
-                }
+                    }
 
-                {this.props.error && !this.prop.fetching &&
-                    <Reload onClick={this.fetchPastEvents.bind(this)} error={this.props.error} />
-                }
+                    {this.props.error && !this.props.fetching &&
+                    <Reload onClick={this.fetchPastEvents.bind(this)} error={this.props.error}/>
+                    }
 
-                {!this.props.fetching && !this.props.error &&
-                body
-                }
+                    {!this.props.fetching && !this.props.error &&
+                    body
+                    }
+
+                    {this.props.error && !this.props.fetching &&
+                    <Reload onClick={this.onReload.bind(this)} error={this.props.error}/>
+                    }
+
+                    {!this.props.fetching && this.isListEmpty() && !this.props.error &&
+                    <Reload onClick={this.onReload.bind(this)} error={l10n.no_events}/>
+                    }
+                </div>
             </div>
         )
     }

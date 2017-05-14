@@ -8,25 +8,18 @@ export default ({title, subtitle, icon, showRemoveBtn, onValidate, onRemove}) =>
             <ul id="action-buttons" className="right">
                 {showRemoveBtn &&
                 <li>
-                    <a className="red waves-effect" href="#" onClick={onRemove}>
+                    <a className="waves-effect" href="#" onClick={onRemove}>
                         <Icon>delete</Icon>
                     </a>
                 </li>
                 }
 
                 <li>
-                    <a className="blue waves-effect" href="#" onClick={onValidate}>
+                    <a className="waves-effect" href="#" onClick={onValidate}>
                         <Icon>done</Icon>
                     </a>
                 </li>
             </ul>
         </FixedNavBar>
-
-        <h1>
-            {title}
-            {subtitle &&
-            <span>{subtitle}</span>
-            }
-        </h1>
     </div>
 );

@@ -74,7 +74,7 @@ class Dashboard extends React.Component {
                 }
 
                 {!this.props.fetching && !this.props.error && this.props.data &&
-                <div>
+                <div className="page">
                     <Row>
 
                         <HighlightBox

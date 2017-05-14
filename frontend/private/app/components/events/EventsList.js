@@ -57,7 +57,7 @@ class EventsList extends React.Component {
     getEmptyMessage() {
         if (this.isListEmpty() && !this.props.fetching) {
             return (
-                <Reload onClick={this.onReload.bind(this)} error={l10n.no_events} />
+                <Reload onClick={this.onReload.bind(this)} error={l10n.no_events}/>
             );
         }
     }
@@ -89,23 +89,25 @@ class EventsList extends React.Component {
 
         return (
             <div>
-                <FixedNavBar title={l10n.incoming_events_title} showAddBtn={true} addRoute={routes.EVENTS_ADD} />
+                <FixedNavBar title={l10n.incoming_events_title} showAddBtn={true} addRoute={routes.EVENTS_ADD}/>
 
-                {this.props.fetching &&
+                <div className="page">
+                    {this.props.fetching &&
                     <Loader />
-                }
+                    }
 
-                {this.props.error && !this.props.fetching &&
-                    <Reload onClick={this.onReload.bind(this)} error={this.props.error} />
-                }
+                    {this.props.error && !this.props.fetching &&
+                    <Reload onClick={this.onReload.bind(this)} error={this.props.error}/>
+                    }
 
-                {!this.props.fetching && this.props.items.length === 0 && !this.props.error &&
-                    <Reload onClick={this.onReload.bind(this)} error={l10n.no_events} />
-                }
+                    {!this.props.fetching && this.props.items.length === 0 && !this.props.error &&
+                    <Reload onClick={this.onReload.bind(this)} error={l10n.no_events}/>
+                    }
 
-                {!this.props.fetching && !this.props.error &&
-                body
-                }
+                    {!this.props.fetching && !this.props.error &&
+                    body
+                    }
+                </div>
             </div>
         )
     }

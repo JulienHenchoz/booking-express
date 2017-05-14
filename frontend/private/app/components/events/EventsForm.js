@@ -51,7 +51,7 @@ class EventForm extends React.Component {
      */
     onSubmit(e) {
         e.preventDefault();
-        let item = this.props.item;
+        let item = this.props.item || this.state.fields;
 
         // Get any validations errors using validate.js
         // Use replaceEmptyWithNull because validate.js requires an element with a constraint to be null
@@ -69,6 +69,7 @@ class EventForm extends React.Component {
                 this.props.dispatch(actions.updateEvent(item._id, item));
             }
             else {
+                console.log(item);
                 // Else send an Add action
                 this.props.dispatch(actions.addEvent(item));
             }
@@ -109,10 +110,10 @@ class EventForm extends React.Component {
         });
         if (venue.length) {
             this.onChange({
-               target: {
-                   name: 'venue',
-                   value: venue[0],
-               }
+                target: {
+                    name: 'venue',
+                    value: venue[0],
+                }
             });
         }
     }
@@ -147,7 +148,7 @@ class EventForm extends React.Component {
      * @returns {boolean}
      */
     isNew() {
-        return this.props.item._id === undefined;
+        return utils.objectIsEmpty(this.props.item) || this.props.item._id === undefined;
     }
 
     /**
@@ -249,7 +250,7 @@ class EventForm extends React.Component {
      */
     componentWillMount() {
         if (this.props.match.params.eventId !== undefined) {
-            this.props.dispatch(actions.fetchEvent(this.props.match.params.eventId));
+            this.props.dispatch(actions.fetchEventForEditForm(this.props.match.params.eventId));
         }
 
         // If we don't have any loaded venues, fetch them to populate our venues list
@@ -288,38 +289,45 @@ class EventForm extends React.Component {
         return (
             <div>
                 {this.props.saveSuccess &&
-                    <Redirect to={{
-                        pathname: routes.EVENTS_LIST
-                    }}/>
+                <Redirect to={{
+                    pathname: routes.EVENTS_LIST
+                }}/>
                 }
                 {this.props.fetching &&
-                    <Loader />
+                <Loader />
                 }
 
-                <ConfirmModal title={l10n.delete_event_title}
-                              content={l10n.formatString(l10n.delete_event_content, this.props.item.name)}
-                              active={this.props.removeModal}
-                              dispatch={this.props.dispatch} cancelAction={actions.cancelRemoveEvent}
-                              confirmAction={actions.confirmRemoveEvent}
-                              itemId={this.props.item._id ? this.props.item._id : null}/>
+                {this.props.item &&
+                <div>
+                    <ConfirmModal title={l10n.delete_event_title}
+                                  content={l10n.formatString(l10n.delete_event_content, this.props.item.name)}
+                                  active={this.props.removeModal}
+                                  dispatch={this.props.dispatch} cancelAction={actions.cancelRemoveEvent}
+                                  confirmAction={actions.confirmRemoveEvent}
+                                  itemId={this.props.item._id ? this.props.item._id : null}/>
+                </div>
+                }
 
                 <FormNavBar
-                    title={this.getTitle()}
                     icon="event"
                     showRemoveBtn={!this.isNew()}
                     onValidate={this.onSubmit.bind(this)}
                     onRemove={this.onRemove.bind(this)}
                 />
 
-                <form id="event-form" style={{opacity: this.props.fetching ? 0.3 : 1}}
+
+                <form id="event-form" className="page" style={{opacity: this.props.fetching ? 0.3 : 1}}
                       onSubmit={this.onSubmit.bind(this)}>
+                    <h1>
+                        {this.getTitle()}
+                    </h1>
                     <Row>
                         {this.getTextInput('name')}
                         {this.getVenueSelect()}
 
                         <DateTime
                             fieldName="startDate"
-                            value={this.state.fields.startDate ? this.state.fields.startDate : this.state.defaultDateTime}
+                            value={this.state.fields.startDate ? moment(this.state.fields.startDate) : this.state.defaultDateTime}
                             onChange={this.onStartDateChange.bind(this)}
                             error={this.state.errors.startDate}
                             label={l10n.fields.events.startDate}

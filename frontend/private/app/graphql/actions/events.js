@@ -67,6 +67,25 @@ export function getEventWithBookings(eventId, success, error) {
         .catch(error);
 }
 
+
+/**
+ * Returns the list of events
+ * @param eventId
+ * @param success
+ * @param error
+ */
+export function getEventForEditForm(eventId, success, error) {
+    client.query({
+        fetchPolicy: 'network-only',
+        variables: {eventId: eventId},
+        query: eventQueries.getEventForEditForm,
+    })
+        .then(success)
+        .catch(error);
+}
+
+
+
 /**
  *
  * Creates a event

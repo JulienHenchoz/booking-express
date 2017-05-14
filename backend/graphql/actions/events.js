@@ -5,9 +5,15 @@ let models = require('../../entity/models');
 function list() {
     console.log("Return list of events");
     return models.event
-        .find()
-        .populate('venue')
-        .populate('bookings');
+        .find({startDate : { $gt : new Date().toISOString() }})
+        .populate('venue');
+}
+
+function listPast() {
+    console.log("Return list of past events");
+    return models.event
+        .find({startDate : { $lte : new Date().toISOString() }})
+        .populate('venue');
 }
 
 function get(root, args) {
@@ -27,6 +33,7 @@ function get(root, args) {
     });
 }
 
+
 function create(value, args) {
     return new Promise((resolve, reject) => {
         models.venue.findOne({_id: args.event.venue}).exec(function (err, venueObj) {
@@ -40,18 +47,6 @@ function create(value, args) {
                     else {
                         console.log("Saved event to DB");
                     }
-                    venueObj.events.push(savedEvent);
-                    venueObj.save(function (err, savedVenue) {
-                        if (err) {
-                            console.error(err);
-                            reject(err);
-                        }
-                        else {
-                            console.log("Added event to venue in DB");
-                            console.log(savedEvent);
-                            resolve(models.event.populate(savedEvent, 'venue'));
-                        }
-                    });
                 });
             }
             else {
@@ -109,6 +104,7 @@ function remove(root, args) {
 module.exports = {
     get,
     list,
+    listPast,
     create,
     edit,
     remove
