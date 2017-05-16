@@ -1,5 +1,6 @@
 import * as types from '../constants/actionTypes';
 import * as ajaxRoutes from '../constants/ajaxRoutes';
+import * as queries from '../graphql/actions/dashboard';
 
 import * as utils from '../utils/utils';
 import l10n from '../l10n/localization';
@@ -27,15 +28,13 @@ export function getError(message) {
 export function fetchDashboard() {
     return dispatch => {
         dispatch(loadingDashboard());
-        fetch(ajaxRoutes.DASHBOARD_GET)
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                dispatch(receiveDashboard(json));
-            })
-            .catch(function(e) {
+        queries.getDashboard(
+            function (response) {
+                dispatch(receiveDashboard(response.data.getDashboard));
+            },
+            function (error) {
+                console.error(error);
                 dispatch(getError(l10n.dashboard_fetch_error));
             });
-    }
+    };
 }

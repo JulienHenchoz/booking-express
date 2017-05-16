@@ -1,6 +1,7 @@
 import ApolloClient, {createNetworkInterface} from 'apollo-client';
 import gql from 'graphql-tag';
 import * as bookingQueries from '../queries/bookings';
+import * as eventQueries from '../queries/events';
 
 import client from '../client';
 
@@ -25,26 +26,14 @@ export function getBookings(success, error) {
  * @param success
  * @param error
  */
-export function changeBookingStatus(bookingId, success, error) {
+export function changeBookingStatus(bookingId, eventId, success, error) {
     client.mutate({
         variables: {bookingId: bookingId},
         mutation: bookingQueries.changeBookingStatus,
-        update: (store, { data: { changeBookingStatus } }) => {
-            // Read the data from our cache for this query.
-            let data = store.readQuery({
-                query: bookingQueries.getBooking,
-                variables: {bookingId: bookingId},
-            });
 
-            data.getBooking = Object.assign({}, changeBookingStatus);
-            // Write our data back to the cache.
-            store.writeQuery({
-                query: bookingQueries.getBooking, data,
-                variables: {bookingId: bookingId},
-            });
-        },
         refetchQueries: [{
-            query: bookingQueries.getBookings
+            query: eventQueries.getEventWithBookings,
+            variables: {eventId: eventId}
         }]
     })
         .then(success)

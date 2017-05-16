@@ -35,7 +35,7 @@ class Dashboard extends React.Component {
 
     onReload(e) {
         e.preventDefault();
-        actions.fetchDashboard();
+        this.props.dispatch(actions.fetchDashboard());
     }
 
     render() {

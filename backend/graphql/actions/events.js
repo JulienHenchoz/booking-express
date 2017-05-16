@@ -5,14 +5,14 @@ let models = require('../../entity/models');
 function list() {
     console.log("Return list of events");
     return models.event
-        .find({startDate : { $gt : new Date().toISOString() }})
+        .find({startDate: {$gt: new Date().toISOString()}})
         .populate('venue');
 }
 
 function listPast() {
     console.log("Return list of past events");
     return models.event
-        .find({startDate : { $lte : new Date().toISOString() }})
+        .find({startDate: {$lte: new Date().toISOString()}})
         .populate('venue');
 }
 
@@ -21,10 +21,13 @@ function get(root, args) {
     return new Promise((resolve, reject) => {
         models.event.findById(eventId, function (err, event) {
             if (event) {
-                models.booking.find({event: eventId}, function(err, bookings) {
-                    event.bookings = bookings;
-                    resolve(models.event.populate(event, 'venue'));
-                });
+                models.booking
+                    .find({event: eventId})
+                    .sort({subscribeDate: -1})
+                    .exec(function (err, bookings) {
+                        event.bookings = bookings;
+                        resolve(models.event.populate(event, 'venue'));
+                    });
             }
             else {
                 reject('Event does not exist');

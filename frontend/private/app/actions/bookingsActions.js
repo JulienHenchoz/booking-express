@@ -155,16 +155,18 @@ export function changeStatusSuccess(bookingId, newStatus) {
     };
 }
 
-export function changeStatus(bookingId) {
+export function changeStatus(bookingId, eventId) {
     return dispatch => {
         dispatch(changingStatus(bookingId));
 
         queries.changeBookingStatus(
-            event,
+            bookingId,
+            eventId,
             function (response) {
-                dispatch(changeStatusSuccess(bookingId, response.data.changeBookingStatus));
+                dispatch(changeStatusSuccess(bookingId, response.data.changeBookingStatus.showedUp));
             },
             function (error) {
+                console.error(error);
                 dispatch(changeStatusError(bookingId));
             });
     };

@@ -5,6 +5,7 @@ let objectTypes = require('./types/objectTypes');
 let venueActions = require('./actions/venues');
 let eventActions = require('./actions/events');
 let bookingActions = require('./actions/bookings');
+let dashboardActions = require('./actions/dashboard');
 
 let queryType = new graphql.GraphQLObjectType({
     name: 'Query',
@@ -15,15 +16,6 @@ let queryType = new graphql.GraphQLObjectType({
         getVenues: {
             type: new graphql.GraphQLList(objectTypes.venue),
             resolve: venueActions.list,
-            getVenue: {
-                type: objectTypes.venue,
-                args: {
-                    id: {
-                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
-                    }
-                },
-                resolve: venueActions.get
-            },
         },
         getVenue: {
             type: objectTypes.venue,
@@ -78,7 +70,14 @@ let queryType = new graphql.GraphQLObjectType({
                 }
             },
             resolve: bookingActions.get
-        }
+        },
+        /**
+         * Dashboard
+         */
+        getDashboard: {
+            type: objectTypes.dashboard,
+            resolve: dashboardActions.get
+        },
     })
 });
 

@@ -110,6 +110,15 @@ let mutationType = new graphql.GraphQLObjectType({
                     }
                 },
                 resolve: bookingActions.remove
+            },
+            changeBookingStatus: {
+                type: objectTypes.booking,
+                args: {
+                    bookingId: {
+                        type: new graphql.GraphQLNonNull(graphql.GraphQLID)
+                    }
+                },
+                resolve: bookingActions.changeStatus
             }
         })
     })

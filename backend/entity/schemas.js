@@ -12,7 +12,7 @@ let booking = mongoose.Schema(
         nbExpected: Number,
         showedUp: Boolean,
         subscribedToNewsletter: Boolean,
-        subscribeDate: Number,
+        subscribeDate: String,
         event: { type: Schema.Types.ObjectId, ref: 'Event' },
     }
 );

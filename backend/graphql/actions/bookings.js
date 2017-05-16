@@ -19,10 +19,9 @@ function get(root, args) {
 
 function list(root, args) {
     let eventId = args.eventId;
-    console.log("Return list of bookings");
-
     return models.booking
         .find()
+        .sort({subscribeDate: 1})
         .populate('event');
 }
 
@@ -31,17 +30,26 @@ function listForEvent(root, args) {
     let eventId = args.eventId;
     console.log("Return list of bookings for event " + eventId);
 
-    return models.booking
-        .find({event: eventId})
-        .populate('event');
+    return new Promise((resolve, reject) => {
+        models.booking
+            .find({event: eventId})
+            .populate('event')
+            .sort({subscribeDate: 1})
+            .exec(function (err, bookings) {
+                if (err) {
+                    reject(err);
+                }
+                resolve(bookings);
+            });
+    });
 }
 
 function create(value, args) {
     return new Promise((resolve, reject) => {
         models.event.findOne({_id: args.booking.event}).exec(function (err, eventObj) {
             if (eventObj) {
-                let booking = new models.booking(args.booking)
-                booking.subscribeDate = new Date().getTime();
+                let booking = new models.booking(args.booking);
+                booking.subscribeDate = new Date().toISOString();
                 booking.save(function (err, savedBooking) {
                     if (err) {
                         console.error(err);
@@ -49,6 +57,7 @@ function create(value, args) {
                     }
                     else {
                         console.log("Saved booking to DB");
+                        resolve(booking);
                     }
                 });
             }
@@ -105,11 +114,38 @@ function remove(root, args) {
     });
 }
 
+function changeStatus(root, args) {
+    let bookingId = args.bookingId;
+    return new Promise((resolve, reject) => {
+        models.booking.findById(args.bookingId, function (err, booking) {
+            if (booking) {
+                console.log('Changing status of booking ' + args.bookingId);
+                models.booking.findById(bookingId, function(err, booking) {
+                    models.booking.findByIdAndUpdate(
+                        bookingId,
+                        {showedUp: !booking.showedUp},
+                        {new: true},
+                        function (err, updatedBooking) {
+                            console.log(updatedBooking);
+                            resolve(updatedBooking);
+                        });
+                });
+            }
+            else {
+                let error = 'Booking does not exist ' + args.bookingId;
+                console.log(error);
+                reject(new Error(error));
+            }
+        });
+    });
+}
+
 module.exports = {
     get,
     list,
     listForEvent,
     create,
     edit,
-    remove
+    remove,
+    changeStatus
 };

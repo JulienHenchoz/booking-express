@@ -51,13 +51,6 @@ class BookingsList extends React.Component {
     }
 
     /**
-     * Fetch bookings list via ajax
-     */
-    fetchBookings() {
-        this.props.dispatch(actions.fetchEventWithBookings(this.props.currentEvent));
-    }
-
-    /**
      * If AJAX returned no data, display a message + a reload button
      * @returns {XML}
      */
@@ -114,6 +107,7 @@ class BookingsList extends React.Component {
         var self = this;
         if (!this.isListEmpty()) {
             itemList = this.props.event.bookings.map(function (booking) {
+                console.log(booking);
                 return (<BookingListItem dispatch={self.props.dispatch} event={self.props.event} editLink={true}
                                          key={booking._id} {...booking} />);
             });

@@ -93,7 +93,7 @@ let booking = new graphql.GraphQLObjectType({
             type: event
         },
         subscribeDate: {
-            type: graphql.GraphQLFloat
+            type: graphql.GraphQLString
         },
         showedUp: {
             type: graphql.GraphQLBoolean
@@ -138,8 +138,30 @@ let venue = new graphql.GraphQLObjectType({
     })
 });
 
+let dashboard = new graphql.GraphQLObjectType({
+    name: 'Dashboard',
+    fields: () => ({
+        incomingEvents: {
+            type: graphql.GraphQLInt
+        },
+        totalBookings: {
+            type: graphql.GraphQLInt
+        },
+        totalPersons: {
+            type: graphql.GraphQLInt
+        },
+        averageFillingPercentage: {
+            type: graphql.GraphQLFloat
+        },
+        latestBookings: {
+            type: new graphql.GraphQLList(booking)
+        },
+    })
+});
+
 module.exports = {
     booking,
     venue,
-    event
+    event,
+    dashboard
 };

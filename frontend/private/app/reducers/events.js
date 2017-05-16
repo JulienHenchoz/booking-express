@@ -65,6 +65,38 @@ export default function events(state = initialState, action) {
         case types.EVENT_REMOVE_ERROR:
             newState.fetching = false;
             break;
+        case types.CHANGING_BOOKING_STATUS:
+            newState.item.bookings = newState.item.bookings.map(function(originalItem) {
+                let item = Object.assign({}, originalItem);
+                if (item._id === action.payload.bookingId) {
+                    item.changingStatus = true;
+                }
+                return item;
+            });
+            newState.item = Object.assign({}, newState.item);
+            break;
+        case types.CHANGE_BOOKING_STATUS_SUCCESS:
+            console.log(newState.item.bookings, action.payload);
+            let newBookings = newState.item.bookings.map(function(originalItem) {
+                let item = Object.assign({}, originalItem);
+                if (item._id === action.payload.bookingId) {
+                    item.changingStatus = false;
+                    item.showedUp = action.payload.newStatus;
+                }
+                return item;
+            });
+            newState.item.bookings = newBookings;
+            newState.item = Object.assign({}, newState.item);
+            break;
+        case types.CHANGE_BOOKING_STATUS_ERROR:
+            newState.items = newState.items.map(function(originalItem) {
+                let item = Object.assign({}, originalItem);
+                if (item._id === action.payload.bookingId) {
+                    item.changingStatus = false;
+                }
+                return item;
+            });
+            break;
 
         /**
          * Add/Edit actions

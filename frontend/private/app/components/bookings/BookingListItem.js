@@ -10,6 +10,7 @@ import * as actions from '../../actions/bookingsActions';
 import moment from 'moment';
 import {Preloader} from 'react-materialize';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import Loader from "../utils/Loader";
 
 const propTypes = {
     dispatch: PropTypes.func.isRequired,
@@ -22,12 +23,12 @@ export default class BookingListItem extends React.Component {
 
     onChangeStatus(e) {
         e.preventDefault();
-        this.props.dispatch(actions.changeStatus(this.props._id));
+        this.props.dispatch(actions.changeStatus(this.props._id, this.props.event._id));
     }
 
     render() {
         return (
-            <li style={{ opacity: this.props.changingStatus ? 0.3 : 1 }} className={"collection-item avatar unclickable " + (this.props.showedUp ? 'status-ok' : '')}>
+            <li style={{opacity: this.props.changingStatus ? 0.3 : 1}} className={"collection-item avatar unclickable "}>
                 <div className="datetime-box booking circle">
                     <span className="month-day">{this.props.nbExpected}</span>
                     <span className="year">{l10n.fields.bookings.persons}</span>
@@ -40,26 +41,18 @@ export default class BookingListItem extends React.Component {
                     <p>{moment(this.props.subscribeDate).format('D MMM YYYY à HH:mm')}</p>
                 </Link>
 
-                {this.props.changingStatus &&
-                <div className="secondary-content loading">
-                    <Preloader size='small'/>
-                </div>
-                }
-
-                {!this.props.changingStatus &&
                 <div className="secondary-content">
                     {this.props.editLink &&
                     <li>
                         <a onClick={this.onChangeStatus.bind(this)}
-                            className="btn-floating btn-flat grey"
-                            to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.event._id, this.props._id)}
-                            href="#">
+                           className={"btn-floating btn-flat " + (this.props.showedUp ? 'green' : 'grey')}
+                           to={l10n.formatString(routes.BOOKINGS_EDIT, this.props.event._id, this.props._id)}
+                           href="#">
                             <Icon>check</Icon>
                         </a>
                     </li>
                     }
                 </div>
-                }
 
             </li>
         );
