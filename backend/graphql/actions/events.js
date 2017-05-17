@@ -49,6 +49,7 @@ function create(value, args) {
                     }
                     else {
                         console.log("Saved event to DB");
+                        resolve(savedEvent);
                     }
                 });
             }

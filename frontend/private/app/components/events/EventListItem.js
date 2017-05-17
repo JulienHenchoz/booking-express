@@ -40,29 +40,6 @@ class EventListItem extends React.Component {
                     <p>{this.props.venue.name}</p>
                 </Link>
 
-                <FixedActionButton>
-                    {this.props.editLink &&
-                    <li>
-                        <Link
-                            className="btn-floating blue btn-flat"
-                            to={l10n.formatString(routes.EVENTS_EDIT, this.props._id)}
-                            href="#">
-                            <Icon>mode_edit</Icon>
-                        </Link>
-                    </li>
-                    }
-
-                    <li>
-                        <Link
-                            className="btn-floating amber btn-flat"
-                            to={l10n.formatString(routes.BOOKINGS_LIST, this.props._id)}
-                            href="#">
-                            <Icon>email</Icon>
-                        </Link>
-                    </li>
-                </FixedActionButton>
-
-
             </div>
         );
     }

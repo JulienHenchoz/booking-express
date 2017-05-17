@@ -91,9 +91,9 @@ class Dashboard extends React.Component {
                             value={this.props.data.totalBookings}
                             label={l10n.dashboard_total_bookings}
                         />
-                        <HighlightBox
+                        {/*<HighlightBox
                             icon="group"
-                            colSize={6}
+                            colSize={12}
                             className="green lighten-1 white-text"
                             value={this.props.data.totalPersons}
                             label={l10n.dashboard_expected_people}
@@ -105,7 +105,7 @@ class Dashboard extends React.Component {
                             value={this.props.data.averageFillingPercentage}
                             suffix="%"
                             label={l10n.dashboard_average_filling}
-                        />
+                        />*/}
                     </Row>
 
                     {latestBookings &&
